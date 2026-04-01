@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Don't Go Broke
 
-## Getting Started
+Personal finance app that syncs bank transactions via Plaid and displays them in a clean UI. Built as a single-user PWA.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Next.js** (App Router, TypeScript)
+- **Supabase** (Postgres + Auth + Row Level Security)
+- **Plaid** (bank sync, Sandbox mode for development)
+- **Tailwind CSS**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repo
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy `.env.example` to `.env.local` and fill in your credentials:
+   ```bash
+   cp .env.example .env.local
+   ```
+4. Run the Supabase migration (`supabase/migrations/001_initial.sql`) against your Supabase project via the SQL Editor in the Supabase dashboard
+5. Start the dev server:
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Getting API Keys
 
-## Learn More
+- **Supabase**: Create a project at [supabase.com](https://supabase.com). Find your URL and keys under Settings > API.
+- **Plaid**: Sign up at [dashboard.plaid.com](https://dashboard.plaid.com). Use the Sandbox secret for development. Test credentials: `user_good` / `pass_good`.
 
-To learn more about Next.js, take a look at the following resources:
+## Security
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This is a personal-use app. The GitHub repo is public, but no real credentials are committed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- All secrets live in `.env.local` (git-ignored) and are never committed
+- Supabase Row Level Security is enabled on all tables — data is only accessible to the authenticated user
+- Plaid access tokens are stored server-side only and never returned to the client
+- All Plaid API calls happen in server-side route handlers, never in client components
 
-## Deploy on Vercel
+## PWA
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app can be installed on iPhone via Safari "Add to Home Screen". Connect your phone to the same WiFi as your dev machine and navigate to `http://<your-local-ip>:3000`.
