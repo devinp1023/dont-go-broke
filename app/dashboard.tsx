@@ -21,7 +21,6 @@ export default function Dashboard({ transactions: initialTransactions }: { trans
     setSyncing(true)
     try {
       await fetch('/api/plaid/sync', { method: 'POST' })
-      // Reload to get fresh data from the server component
       window.location.reload()
     } finally {
       setSyncing(false)
@@ -29,15 +28,15 @@ export default function Dashboard({ transactions: initialTransactions }: { trans
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-50">
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold">Don't Go Broke</h1>
+          <h1 className="text-display font-display text-neutral-900">Don&apos;t Go Broke</h1>
           <div className="flex gap-3">
             <button
               onClick={handleSync}
               disabled={syncing}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 transition-colors"
+              className="btn btn-secondary disabled:opacity-50"
             >
               {syncing ? 'Syncing...' : 'Sync'}
             </button>
@@ -45,7 +44,7 @@ export default function Dashboard({ transactions: initialTransactions }: { trans
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="card">
           <TransactionList transactions={transactions} />
         </div>
       </div>

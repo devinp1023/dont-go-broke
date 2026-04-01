@@ -12,36 +12,33 @@ type Transaction = {
 export default function TransactionList({ transactions }: { transactions: Transaction[] }) {
   if (transactions.length === 0) {
     return (
-      <p className="text-gray-500 text-center py-8">
-        No transactions yet. Connect a bank to get started.
-      </p>
+      <div className="empty-state">
+        <div className="empty-icon">🏦</div>
+        <div className="empty-title">No transactions yet</div>
+        <div className="empty-desc">Connect a bank to get started.</div>
+      </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-200 text-left text-gray-500">
-            <th className="py-3 pr-4">Date</th>
-            <th className="py-3 pr-4">Merchant</th>
-            <th className="py-3 pr-4 text-right">Amount</th>
-            <th className="py-3">Category</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((txn) => (
-            <tr key={txn.id} className="border-b border-gray-100">
-              <td className="py-3 pr-4 text-gray-600">{txn.date}</td>
-              <td className="py-3 pr-4">{txn.merchant_name || txn.name}</td>
-              <td className={`py-3 pr-4 text-right font-mono ${txn.amount > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {txn.amount > 0 ? '-' : '+'}${Math.abs(txn.amount).toFixed(2)}
-              </td>
-              <td className="py-3 text-gray-500">{txn.category || '—'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      {transactions.map((txn) => (
+        <div key={txn.id} className="tx-row">
+          <div className="tx-icon">💳</div>
+          <div className="tx-info">
+            <div className="tx-name">{txn.merchant_name || txn.name}</div>
+            <div className="tx-meta">{txn.category || 'Uncategorized'}</div>
+          </div>
+          <div className="tx-right">
+            <div className={`tx-amount ${txn.amount > 0 ? 'debit' : 'credit'}`}>
+              {txn.amount > 0 ? '-' : '+'}${Math.abs(txn.amount).toFixed(2)}
+            </div>
+            <div className="tx-date">
+              {new Date(txn.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

@@ -28,12 +28,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Don't Go Broke</h1>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+      <div className="card-elevated w-full max-w-sm p-8">
+        <h1 className="text-display font-display text-neutral-900 text-center mb-6">Don&apos;t Go Broke</h1>
 
         {sent ? (
-          <p className="text-center text-gray-600">
+          <p className="text-body text-neutral-500 text-center">
             Check your email for the magic link.
           </p>
         ) : (
@@ -44,16 +44,16 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-field"
             />
             <button
               type="submit"
-              className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+              className="btn btn-primary w-full justify-center"
             >
               Send magic link
             </button>
             {error && (
-              <p className="text-sm text-red-600 text-center">{error}</p>
+              <p className="text-label text-danger-400 text-center">{error}</p>
             )}
           </form>
         )}
