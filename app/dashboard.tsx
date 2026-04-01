@@ -1,50 +1,38 @@
 'use client'
 
-import { useState } from 'react'
-import PlaidLinkButton from '@/components/PlaidLinkButton'
-import TransactionList from '@/components/TransactionList'
-
-type Transaction = {
-  id: string
-  date: string
-  name: string
-  merchant_name: string | null
-  amount: number
-  category: string | null
-}
-
-export default function Dashboard({ transactions: initialTransactions }: { transactions: Transaction[] }) {
-  const [transactions, setTransactions] = useState(initialTransactions)
-  const [syncing, setSyncing] = useState(false)
-
-  async function handleSync() {
-    setSyncing(true)
-    try {
-      await fetch('/api/plaid/sync', { method: 'POST' })
-      window.location.reload()
-    } finally {
-      setSyncing(false)
-    }
-  }
+export default function Dashboard({ income, expenses, monthLabel }: { income: number; expenses: number; monthLabel: string }) {
+  const maxVal = Math.max(income, expenses, 1)
+  const incomePercent = (income / maxVal) * 100
+  const expensePercent = (expenses / maxVal) * 100
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-hero font-display text-neutral-900">Home</h1>
-        <div className="flex gap-3">
-          <button
-            onClick={handleSync}
-            disabled={syncing}
-            className="btn btn-secondary disabled:opacity-50"
-          >
-            {syncing ? 'Syncing...' : 'Sync'}
-          </button>
-          <PlaidLinkButton onSuccess={() => window.location.reload()} />
-        </div>
-      </div>
+      <h1 className="text-hero font-display text-neutral-900 mb-8">Hello, Devin!</h1>
 
-      <div className="card">
-        <TransactionList transactions={transactions} />
+      <div className="card mb-8">
+        {monthLabel && <div className="stat-label mb-4">{monthLabel}</div>}
+
+        <div className="mb-5">
+          <div className="flex justify-between items-baseline mb-2">
+            <span className="text-label font-medium text-neutral-600">Income</span>
+            <span className="stat-value" style={{ color: 'var(--color-sg-400)', fontSize: '24px' }}>${income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+          <div
+            className="rounded-full"
+            style={{ height: '18px', width: `${incomePercent}%`, background: 'var(--color-sg-400)', transition: 'width 0.5s ease' }}
+          />
+        </div>
+
+        <div>
+          <div className="flex justify-between items-baseline mb-2">
+            <span className="text-label font-medium text-neutral-600">Expenses</span>
+            <span className="stat-value" style={{ color: 'var(--color-danger-400)', fontSize: '24px' }}>${expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+          <div
+            className="rounded-full"
+            style={{ height: '18px', width: `${expensePercent}%`, background: 'var(--color-danger-400)', transition: 'width 0.5s ease' }}
+          />
+        </div>
       </div>
     </div>
   )
