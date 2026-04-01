@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance App — Style Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       DESIGN TOKENS — copy these into your globals.css
+       ============================================================ */
+    :root {
+      /* Sea Green Palette */
+      --sg-50:  #edfaf5;
+      --sg-100: #c8f0e0;
+      --sg-200: #8edfc3;
+      --sg-300: #6dd4ac;
+      --sg-400: #2fbe8f;
+      --sg-500: #1fa678;
+      --sg-600: #138060;
+      --sg-700: #0f6648;
+      --sg-800: #0a4d3a;
+      --sg-900: #062e23;
+
+      /* Slate Neutrals */
+      --neutral-50:  #f8f8f6;
+      --neutral-100: #eeede9;
+      --neutral-200: #d8d7d1;
+      --neutral-300: #c2c1bb;
+      --neutral-400: #9b9990;
+      --neutral-500: #7a7976;
+      --neutral-600: #5a5955;
+      --neutral-700: #3a3a37;
+      --neutral-800: #272724;
+      --neutral-900: #141412;
+
+      /* Semantic */
+      --danger-50:  #fdf0f0;
+      --danger-200: #f5c4c4;
+      --danger-400: #e05252;
+      --danger-600: #b03030;
+
+      --warning-50:  #fdf8ec;
+      --warning-400: #e5a020;
+
+      /* Typography */
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --font-mono:    'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+
+      /* Border Radius */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-card:     0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+      --shadow-elevated: 0 2px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+      --shadow-modal:    0 8px 32px rgba(0,0,0,0.12), 0 24px 64px rgba(0,0,0,0.08);
+
+      /* Spacing scale (use in padding/margin/gap) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+    }
+
+    /* ============================================================
+       STYLE GUIDE CHROME (not part of the app design system)
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: #f0efeb;
+      color: var(--neutral-800);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Sidebar nav */
+    .sg-layout {
+      display: block;
+      min-height: 100vh;
+    }
+
+    .sg-sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 220px;
+      height: 100vh;
+      background: var(--neutral-900);
+      padding: 2rem 1.25rem;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sg-sidebar-logo {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: white;
+      margin-bottom: 0.25rem;
+    }
+
+    .sg-sidebar-sub {
+      font-size: 11px;
+      color: var(--neutral-500);
+      margin-bottom: 2rem;
+      letter-spacing: 0.04em;
+    }
+
+    .sg-nav-section {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--neutral-600);
+      margin-bottom: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .sg-nav-section:first-of-type { margin-top: 0; }
+
+    .sg-nav-link {
+      display: block;
+      font-size: 13px;
+      color: var(--neutral-400);
+      text-decoration: none;
+      padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      transition: color 0.15s, background 0.15s;
+      margin-bottom: 1px;
+    }
+
+    .sg-nav-link:hover { color: white; background: rgba(255,255,255,0.06); }
+    .sg-nav-link.active { color: var(--sg-400); background: rgba(47,190,143,0.08); }
+
+    /* Main content */
+    .sg-main {
+      margin-left: 220px;
+      padding: 3rem 3.5rem 6rem;
+      min-width: 0;
+      width: calc(100% - 220px);
+      box-sizing: border-box;
+    }
+
+    .sg-content {
+      max-width: 860px;
+    }
+
+    .sg-header {
+      margin-bottom: 3.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 0.5px solid var(--neutral-300);
+    }
+
+    .sg-header-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sg-500);
+      margin-bottom: 0.75rem;
+    }
+
+    .sg-header-title {
+      font-family: var(--font-display);
+      font-size: 40px;
+      color: var(--neutral-900);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .sg-header-desc {
+      font-size: 15px;
+      color: var(--neutral-500);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+
+    /* Section headings */
+    .sg-section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 2rem;
+    }
+
+    .sg-section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 0.5px solid var(--neutral-200);
+    }
+
+    .sg-section-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--neutral-900);
+      letter-spacing: -0.01em;
+    }
+
+    .sg-section-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--neutral-400);
+      letter-spacing: 0.04em;
+    }
+
+    /* Token display */
+    .sg-token {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--neutral-100);
+      color: var(--sg-600);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      border: 0.5px solid var(--neutral-200);
+    }
+
+    /* Preview + code block pattern */
+    .sg-preview {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--neutral-200);
+      box-shadow: var(--shadow-card);
+      padding: 2rem;
+      margin-bottom: 1px;
+    }
+
+    .sg-preview.bg-tinted {
+      background: var(--neutral-50);
+    }
+
+    .sg-preview.bg-dark {
+      background: var(--neutral-900);
+    }
+
+    .sg-code {
+      background: var(--neutral-900);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--sg-200);
+      line-height: 1.7;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .sg-code-label {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-size: 10px;
+      color: var(--neutral-600);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sg-code .comment { color: var(--neutral-600); }
+    .sg-code .prop { color: #81b4ea; }
+    .sg-code .val  { color: var(--sg-300); }
+    .sg-code .str  { color: #f4a261; }
+
+    /* ============================================================
+       ACTUAL DESIGN SYSTEM COMPONENTS
+       ============================================================ */
+
+    /* — Color swatches — */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .swatch {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .swatch-color { height: 60px; }
+
+    .swatch-info {
+      background: white;
+      padding: 8px 10px;
+      font-size: 10px;
+      color: var(--neutral-500);
+      line-height: 1.5;
+    }
+
+    .swatch-info strong {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--neutral-800);
+      margin-bottom: 1px;
+    }
+
+    /* — Typography — */
+    .type-row {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 2rem;
+      align-items: start;
+      padding: 1.25rem 0;
+      border-bottom: 0.5px solid var(--neutral-100);
+    }
+
+    .type-row:last-child { border-bottom: none; }
+
+    .type-meta-col { padding-top: 4px; }
+
+    .type-meta-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--neutral-400);
+      padding: 2px 0;
+    }
+
+    .type-meta-item span:last-child { color: var(--neutral-600); font-weight: 500; }
+
+    /* Typography specimens */
+    .t-hero     { font-family: var(--font-display); font-size: 42px; color: var(--neutral-900); line-height: 1.1; letter-spacing: -0.02em; }
+    .t-display  { font-family: var(--font-display); font-size: 28px; color: var(--neutral-900); line-height: 1.2; letter-spacing: -0.01em; }
+    .t-heading  { font-family: var(--font-body); font-size: 17px; font-weight: 500; color: var(--neutral-800); line-height: 1.35; }
+    .t-eyebrow  { font-family: var(--font-body); font-size: 11px; font-weight: 500; color: var(--neutral-400); letter-spacing: 0.1em; text-transform: uppercase; }
+    .t-body     { font-family: var(--font-body); font-size: 15px; font-weight: 300; color: var(--neutral-600); line-height: 1.65; }
+    .t-label    { font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--neutral-400); }
+    .t-number   { font-family: var(--font-display); font-size: 32px; color: var(--neutral-900); letter-spacing: -0.03em; }
+    .t-mono     { font-family: var(--font-mono); font-size: 14px; color: var(--sg-600); }
+
+    /* — Buttons — */
+    .btn-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+    .btn {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--sg-500);
+      color: white;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 1px 2px rgba(31,166,120,0.25), 0 4px 14px rgba(31,166,120,0.18);
+    }
+    .btn-primary:hover {
+      background: var(--sg-600);
+      box-shadow: 0 2px 6px rgba(31,166,120,0.3), 0 8px 24px rgba(31,166,120,0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--neutral-700);
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--neutral-200);
+      box-shadow: var(--shadow-card);
+    }
+    .btn-secondary:hover { background: var(--neutral-50); border-color: var(--neutral-300); transform: translateY(-1px); box-shadow: var(--shadow-elevated); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--sg-600);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--sg-200);
+    }
+    .btn-ghost:hover { background: var(--sg-50); }
+
+    .btn-danger {
+      background: var(--danger-50);
+      color: var(--danger-400);
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--danger-200);
+    }
+    .btn-danger:hover { background: #fae4e4; }
+
+    .btn-sm  { font-size: 12px; padding: 7px 14px; border-radius: var(--radius-sm); }
+    .btn-lg  { font-size: 16px; padding: 13px 28px; border-radius: var(--radius-md); }
+
+    .btn-icon {
+      width: 38px; height: 38px;
+      background: white;
+      color: var(--neutral-600);
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--neutral-200);
+      box-shadow: var(--shadow-card);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn-icon:hover { background: var(--neutral-50); box-shadow: var(--shadow-elevated); transform: translateY(-1px); }
+
+    /* — Inputs — */
+    .input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-600);
+      margin-bottom: 5px;
+      letter-spacing: 0.01em;
+    }
+
+    .input-field {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--neutral-800);
+      background: white;
+      border: 0.5px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .input-field::placeholder { color: var(--neutral-400); }
+    .input-field:focus { border-color: var(--sg-400); box-shadow: 0 0 0 3px rgba(47,190,143,0.12); }
+    .input-field.error { border-color: var(--danger-400); box-shadow: 0 0 0 3px rgba(224,82,82,0.1); }
+    .input-field:disabled { background: var(--neutral-50); color: var(--neutral-400); cursor: not-allowed; }
+
+    .input-hint { font-size: 11px; color: var(--neutral-400); margin-top: 4px; }
+    .input-hint.is-error { color: var(--danger-400); }
+
+    .input-group { margin-bottom: 1rem; }
+    .input-group:last-child { margin-bottom: 0; }
+
+    .select-wrap { position: relative; }
+    .select-wrap select {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--neutral-800);
+      background: white;
+      border: 0.5px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 10px 36px 10px 14px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .select-wrap select:focus { border-color: var(--sg-400); box-shadow: 0 0 0 3px rgba(47,190,143,0.12); }
+    .select-wrap::after {
+      content: '';
+      position: absolute; right: 13px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--neutral-400);
+      pointer-events: none;
+    }
+
+    /* Input with prefix */
+    .input-with-prefix { position: relative; }
+    .input-prefix {
+      position: absolute; left: 13px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px; color: var(--neutral-500);
+      pointer-events: none;
+    }
+    .input-with-prefix .input-field { padding-left: 26px; }
+
+    /* — Badges — */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-body);
+      font-size: 11px; font-weight: 500;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+    }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+    .badge-green   { background: var(--sg-50);      color: var(--sg-700);      }
+    .badge-green .badge-dot   { background: var(--sg-400); }
+    .badge-red     { background: var(--danger-50);  color: var(--danger-600);  }
+    .badge-red .badge-dot     { background: var(--danger-400); }
+    .badge-neutral { background: var(--neutral-100); color: var(--neutral-600); }
+    .badge-outline { background: transparent; color: var(--sg-600); border: 0.5px solid var(--sg-200); }
+    .badge-warning { background: var(--warning-50); color: #8a5a00; }
+    .badge-warning .badge-dot { background: var(--warning-400); }
+
+    /* — Cards — */
+    .card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--neutral-100);
+      box-shadow: var(--shadow-card);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .card-elevated {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--neutral-100);
+      box-shadow: var(--shadow-elevated);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .card-tinted {
+      background: var(--sg-50);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--sg-100);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .card-dark {
+      background: var(--neutral-900);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid rgba(255,255,255,0.06);
+      padding: 1.25rem 1.5rem;
+    }
+
+    /* — Stat cards — */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    .stat-card {
+      background: white;
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--neutral-100);
+      box-shadow: var(--shadow-card);
+      padding: 14px 16px;
+    }
+
+    .stat-label {
+      font-size: 11px; font-weight: 500;
+      color: var(--neutral-400);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 26px; color: var(--neutral-900);
+      letter-spacing: -0.02em; line-height: 1.1;
+    }
+
+    .stat-delta { font-size: 11px; font-weight: 500; margin-top: 5px; }
+    .stat-delta.up   { color: var(--sg-500); }
+    .stat-delta.down { color: var(--danger-400); }
+
+    /* — Transaction rows — */
+    .tx-list { }
+
+    .tx-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 0;
+      border-bottom: 0.5px solid var(--neutral-100);
+    }
+    .tx-row:last-child { border-bottom: none; }
+
+    .tx-icon {
+      width: 40px; height: 40px; flex-shrink: 0;
+      border-radius: var(--radius-md);
+      background: var(--neutral-100);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-name { font-size: 14px; font-weight: 500; color: var(--neutral-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tx-meta { font-size: 12px; color: var(--neutral-400); margin-top: 1px; }
+
+    .tx-right { text-align: right; flex-shrink: 0; }
+    .tx-amount { font-family: var(--font-mono); font-size: 14px; font-weight: 400; }
+    .tx-amount.debit  { color: var(--neutral-800); }
+    .tx-amount.credit { color: var(--sg-500); }
+    .tx-date { font-size: 11px; color: var(--neutral-400); margin-top: 2px; }
+
+    /* — Progress bars — */
+    .progress-block { margin-bottom: 1.1rem; }
+    .progress-block:last-child { margin-bottom: 0; }
+    .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+    .progress-name { font-size: 13px; font-weight: 500; color: var(--neutral-700); }
+    .progress-nums { font-size: 12px; color: var(--neutral-500); }
+    .progress-nums span { color: var(--neutral-800); font-weight: 500; }
+    .progress-track { height: 6px; background: var(--neutral-100); border-radius: var(--radius-full); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: var(--radius-full); transition: width 0.5s ease; }
+    .progress-fill.normal  { background: var(--sg-400); }
+    .progress-fill.warning { background: var(--warning-400); }
+    .progress-fill.over    { background: var(--danger-400); }
+
+    /* — Tabs — */
+    .tab-bar {
+      display: flex; gap: 2px;
+      background: var(--neutral-100);
+      border-radius: var(--radius-md);
+      padding: 3px;
+    }
+
+    .tab {
+      flex: 1; font-family: var(--font-body); font-size: 13px; font-weight: 500;
+      padding: 7px 14px; border-radius: 8px; border: none;
+      cursor: pointer; color: var(--neutral-500);
+      background: transparent; transition: all 0.15s;
+      text-align: center;
+    }
+
+    .tab.active {
+      background: white;
+      color: var(--neutral-800);
+      box-shadow: var(--shadow-card);
+    }
+
+    .tab:hover:not(.active) { color: var(--neutral-700); }
+
+    /* — Toggle — */
+    .toggle-wrap { display: flex; align-items: center; gap: 12px; }
+
+    .toggle { position: relative; display: inline-block; width: 40px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--neutral-200); border-radius: var(--radius-full);
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+    .toggle input:checked + .toggle-track { background: var(--sg-400); }
+    .toggle-thumb {
+      position: absolute; top: 4px; left: 4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+      pointer-events: none;
+    }
+    .toggle input:checked + .toggle-track + .toggle-thumb { transform: translateX(16px); }
+    .toggle-label { font-size: 14px; color: var(--neutral-700); cursor: pointer; }
+    .toggle-desc  { font-size: 12px; color: var(--neutral-400); margin-top: 1px; }
+
+    /* — Avatar — */
+    .avatar {
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-family: var(--font-body); font-weight: 500;
+      flex-shrink: 0;
+    }
+    .avatar-sm { width: 28px; height: 28px; font-size: 10px; }
+    .avatar-md { width: 36px; height: 36px; font-size: 13px; }
+    .avatar-lg { width: 48px; height: 48px; font-size: 17px; }
+    .avatar-green { background: var(--sg-100); color: var(--sg-700); }
+
+    /* — Dividers — */
+    .divider { border: none; border-top: 0.5px solid var(--neutral-200); }
+
+    .divider-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: var(--neutral-400); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .divider-label::before, .divider-label::after {
+      content: ''; flex: 1; height: 0.5px; background: var(--neutral-200);
+    }
+
+    /* — Empty state — */
+    .empty-state {
+      text-align: center; padding: 3rem 2rem;
+    }
+    .empty-icon {
+      width: 56px; height: 56px; border-radius: var(--radius-lg);
+      background: var(--sg-50);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 1rem;
+      border: 0.5px solid var(--sg-100);
+    }
+    .empty-title { font-family: var(--font-display); font-size: 20px; color: var(--neutral-800); margin-bottom: 0.5rem; }
+    .empty-desc  { font-size: 14px; color: var(--neutral-400); line-height: 1.6; max-width: 280px; margin: 0 auto 1.5rem; }
+
+    /* — Toast / notification — */
+    .toast {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid;
+      box-shadow: var(--shadow-elevated);
+      max-width: 340px;
+    }
+    .toast-success { background: var(--sg-50);   border-color: var(--sg-100);   }
+    .toast-error   { background: var(--danger-50); border-color: var(--danger-200); }
+    .toast-icon { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+    .toast-title { font-size: 13px; font-weight: 500; color: var(--neutral-800); margin-bottom: 2px; }
+    .toast-desc  { font-size: 12px; color: var(--neutral-500); line-height: 1.5; }
+
+    /* — Helpers — */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .flex-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mt-4 { margin-top: 1rem; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--neutral-300); border-radius: 3px; }
+
+    @media (max-width: 768px) {
+      .sg-sidebar { display: none; }
+      .sg-main { margin-left: 0; width: 100%; padding: 2rem 1.25rem 4rem; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .type-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sg-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sg-sidebar">
+    <div class="sg-sidebar-logo">Finance</div>
+    <div class="sg-sidebar-sub">Style Guide v1.0</div>
+
+    <div class="sg-nav-section">Foundation</div>
+    <a href="#colors"     class="sg-nav-link active">Colors</a>
+    <a href="#typography" class="sg-nav-link">Typography</a>
+    <a href="#spacing"    class="sg-nav-link">Spacing</a>
+    <a href="#radius"     class="sg-nav-link">Border Radius</a>
+    <a href="#shadows"    class="sg-nav-link">Shadows</a>
+
+    <div class="sg-nav-section">Components</div>
+    <a href="#buttons"    class="sg-nav-link">Buttons</a>
+    <a href="#inputs"     class="sg-nav-link">Inputs</a>
+    <a href="#badges"     class="sg-nav-link">Badges</a>
+    <a href="#cards"      class="sg-nav-link">Cards</a>
+    <a href="#tabs"       class="sg-nav-link">Tabs</a>
+    <a href="#toggles"    class="sg-nav-link">Toggles</a>
+    <a href="#avatars"    class="sg-nav-link">Avatars</a>
+
+    <div class="sg-nav-section">Patterns</div>
+    <a href="#stats"        class="sg-nav-link">Stat Cards</a>
+    <a href="#transactions" class="sg-nav-link">Transactions</a>
+    <a href="#progress"     class="sg-nav-link">Budget Progress</a>
+    <a href="#empty"        class="sg-nav-link">Empty States</a>
+    <a href="#toasts"       class="sg-nav-link">Toasts</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="sg-main">
+  <div class="sg-content">
+
+    <div class="sg-header">
+      <div class="sg-header-eyebrow">Design System</div>
+      <h1 class="sg-header-title">Finance App<br><em>Style Guide</em></h1>
+      <p class="sg-header-desc">A living reference for colors, typography, components, and patterns. Every token and component here maps directly to CSS variables in <code style="font-family: var(--font-mono); font-size: 13px; color: var(--sg-600);">globals.css</code>.</p>
+    </div>
+
+    <!-- ══════════ COLORS ══════════ -->
+    <section class="sg-section" id="colors">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Colors</h2>
+        <span class="sg-section-tag">2 ramps · 17 stops</span>
+      </div>
+
+      <p style="font-size: 13px; color: var(--neutral-500); margin-bottom: 1.25rem; line-height: 1.6;">Sea green is the brand anchor — it does real work (positive values, CTAs, active states, success). Slate neutrals keep the UI from feeling clinical. Rose handles negative amounts and warnings.</p>
+
+      <p style="font-size: 12px; font-weight: 500; color: var(--neutral-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">Sea Green</p>
+      <div class="swatch-grid mb-4">
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-50);"></div><div class="swatch-info"><strong>sg-50</strong>#edfaf5<br>Tinted bg</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-100);"></div><div class="swatch-info"><strong>sg-100</strong>#c8f0e0<br>Light fill</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-200);"></div><div class="swatch-info"><strong>sg-200</strong>#8edfc3<br>Border</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-400);"></div><div class="swatch-info"><strong>sg-400</strong>#2fbe8f<br>Interactive</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-500);"></div><div class="swatch-info"><strong>sg-500</strong>#1fa678<br>Primary CTA</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-600);"></div><div class="swatch-info"><strong>sg-600</strong>#138060<br>Hover</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-700);"></div><div class="swatch-info"><strong>sg-700</strong>#0f6648<br>Text on light</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--sg-800);"></div><div class="swatch-info"><strong>sg-800</strong>#0a4d3a<br>Dark text</div></div>
+      </div>
+
+      <p style="font-size: 12px; font-weight: 500; color: var(--neutral-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">Slate Neutrals</p>
+      <div class="swatch-grid mb-4">
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-50); border: 0.5px solid var(--neutral-200);"></div><div class="swatch-info"><strong>neutral-50</strong>#f8f8f6<br>Page bg</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-100);"></div><div class="swatch-info"><strong>neutral-100</strong>#eeede9<br>Dividers</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-200);"></div><div class="swatch-info"><strong>neutral-200</strong>#d8d7d1<br>Borders</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-400);"></div><div class="swatch-info"><strong>neutral-400</strong>#9b9990<br>Placeholder</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-600);"></div><div class="swatch-info"><strong>neutral-600</strong>#5a5955<br>Body text</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-800);"></div><div class="swatch-info"><strong>neutral-800</strong>#272724<br>Headings</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--neutral-900);"></div><div class="swatch-info"><strong>neutral-900</strong>#141412<br>Near black</div></div>
+      </div>
+
+      <p style="font-size: 12px; font-weight: 500; color: var(--neutral-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">Semantic</p>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background: var(--danger-50);"></div><div class="swatch-info"><strong>danger-50</strong>#fdf0f0<br>Error bg</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--danger-400);"></div><div class="swatch-info"><strong>danger-400</strong>#e05252<br>Negative $, errors</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--warning-50);"></div><div class="swatch-info"><strong>warning-50</strong>#fdf8ec<br>Warning bg</div></div>
+        <div class="swatch"><div class="swatch-color" style="background: var(--warning-400);"></div><div class="swatch-info"><strong>warning-400</strong>#e5a020<br>Near budget</div></div>
+      </div>
+    </section>
+
+    <!-- ══════════ TYPOGRAPHY ══════════ -->
+    <section class="sg-section" id="typography">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Typography</h2>
+        <span class="sg-section-tag">DM Serif Display + DM Sans</span>
+      </div>
+
+      <div class="sg-preview" style="padding: 1.5rem 2rem;">
+        <div class="type-row">
+          <div>
+            <div class="t-hero">$48,200.00</div>
+          </div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>DM Serif Display</span></div>
+            <div class="type-meta-item"><span>Size</span><span>42px</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Net worth hero</span></div>
+            <div class="type-meta-item"><span>Token</span><span class="sg-token">--font-display</span></div>
+          </div>
+        </div>
+
+        <div class="type-row">
+          <div>
+            <div class="t-display">Your finances,<br><em>beautifully tracked.</em></div>
+          </div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>DM Serif Display</span></div>
+            <div class="type-meta-item"><span>Size</span><span>28px</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Page titles, empty states</span></div>
+          </div>
+        </div>
+
+        <div class="type-row">
+          <div class="t-heading">Spending this month</div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>DM Sans 500</span></div>
+            <div class="type-meta-item"><span>Size</span><span>17px</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Section headings, card titles</span></div>
+          </div>
+        </div>
+
+        <div class="type-row">
+          <div class="t-eyebrow">Last 30 days</div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>DM Sans 500</span></div>
+            <div class="type-meta-item"><span>Size</span><span>11px · uppercase</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Eyebrow labels, dates</span></div>
+          </div>
+        </div>
+
+        <div class="type-row">
+          <div class="t-body">Transactions sync automatically from your connected accounts. Tap any row to add a note or update the category.</div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>DM Sans 300</span></div>
+            <div class="type-meta-item"><span>Size</span><span>15px</span></div>
+            <div class="type-meta-item"><span>Color</span><span>neutral-600</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Body copy, descriptions</span></div>
+          </div>
+        </div>
+
+        <div class="type-row">
+          <div class="t-label">Last synced 3 minutes ago</div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>DM Sans 400</span></div>
+            <div class="type-meta-item"><span>Size</span><span>12px</span></div>
+            <div class="type-meta-item"><span>Color</span><span>neutral-400</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Captions, metadata, timestamps</span></div>
+          </div>
+        </div>
+
+        <div class="type-row">
+          <div class="t-mono">-$42.50</div>
+          <div class="type-meta-col">
+            <div class="type-meta-item"><span>Font</span><span>SF Mono / Fira Code</span></div>
+            <div class="type-meta-item"><span>Size</span><span>14px</span></div>
+            <div class="type-meta-item"><span>Color</span><span>sg-600</span></div>
+            <div class="type-meta-item"><span>Use</span><span>Transaction amounts</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SPACING ══════════ -->
+    <section class="sg-section" id="spacing">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Spacing</h2>
+        <span class="sg-section-tag">4px base unit</span>
+      </div>
+      <div class="sg-preview">
+        <div style="display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="width: 4px; height: 4px; background: var(--sg-200); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-1</div>
+            <div class="t-label" style="margin-top: 4px;">4px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 8px; height: 8px; background: var(--sg-200); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-2</div>
+            <div class="t-label" style="margin-top: 4px;">8px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 12px; height: 12px; background: var(--sg-200); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-3</div>
+            <div class="t-label" style="margin-top: 4px;">12px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 16px; height: 16px; background: var(--sg-300); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-4</div>
+            <div class="t-label" style="margin-top: 4px;">16px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 20px; height: 20px; background: var(--sg-400); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-5</div>
+            <div class="t-label" style="margin-top: 4px;">20px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 24px; height: 24px; background: var(--sg-500); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-6</div>
+            <div class="t-label" style="margin-top: 4px;">24px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 32px; height: 32px; background: var(--sg-600); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-8</div>
+            <div class="t-label" style="margin-top: 4px;">32px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 48px; height: 48px; background: var(--sg-700); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-12</div>
+            <div class="t-label" style="margin-top: 4px;">48px</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 64px; height: 64px; background: var(--sg-800); border-radius: 2px; margin: 0 auto 8px;"></div>
+            <div class="sg-token">--space-16</div>
+            <div class="t-label" style="margin-top: 4px;">64px</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ BORDER RADIUS ══════════ -->
+    <section class="sg-section" id="radius">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Border Radius</h2>
+        <span class="sg-section-tag">5 stops</span>
+      </div>
+      <div class="sg-preview">
+        <div style="display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="width: 48px; height: 48px; background: var(--sg-100); border: 0.5px solid var(--sg-200); border-radius: var(--radius-sm); margin: 0 auto 10px;"></div>
+            <div class="sg-token">--radius-sm</div>
+            <div class="t-label" style="margin-top: 4px;">6px · Badges</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 56px; height: 56px; background: var(--sg-100); border: 0.5px solid var(--sg-200); border-radius: var(--radius-md); margin: 0 auto 10px;"></div>
+            <div class="sg-token">--radius-md</div>
+            <div class="t-label" style="margin-top: 4px;">10px · Inputs, buttons</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 64px; height: 64px; background: var(--sg-100); border: 0.5px solid var(--sg-200); border-radius: var(--radius-lg); margin: 0 auto 10px;"></div>
+            <div class="sg-token">--radius-lg</div>
+            <div class="t-label" style="margin-top: 4px;">16px · Cards</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 72px; height: 72px; background: var(--sg-100); border: 0.5px solid var(--sg-200); border-radius: var(--radius-xl); margin: 0 auto 10px;"></div>
+            <div class="sg-token">--radius-xl</div>
+            <div class="t-label" style="margin-top: 4px;">24px · Modals</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: 48px; height: 48px; background: var(--sg-100); border: 0.5px solid var(--sg-200); border-radius: var(--radius-full); margin: 0 auto 10px;"></div>
+            <div class="sg-token">--radius-full</div>
+            <div class="t-label" style="margin-top: 4px;">9999px · Pills, avatars</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SHADOWS ══════════ -->
+    <section class="sg-section" id="shadows">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Shadows</h2>
+        <span class="sg-section-tag">3 levels</span>
+      </div>
+      <div class="sg-preview bg-tinted">
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+          <div style="text-align: center; flex: 1; min-width: 120px;">
+            <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 20px; margin-bottom: 12px;">
+              <div class="t-label" style="color: var(--neutral-600);">Card</div>
+            </div>
+            <div class="sg-token">--shadow-card</div>
+            <div class="t-label" style="margin-top: 4px;">Default surface</div>
+          </div>
+          <div style="text-align: center; flex: 1; min-width: 120px;">
+            <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-elevated); padding: 20px; margin-bottom: 12px;">
+              <div class="t-label" style="color: var(--neutral-600);">Elevated</div>
+            </div>
+            <div class="sg-token">--shadow-elevated</div>
+            <div class="t-label" style="margin-top: 4px;">Hover, dropdowns</div>
+          </div>
+          <div style="text-align: center; flex: 1; min-width: 120px;">
+            <div style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); padding: 20px; margin-bottom: 12px;">
+              <div class="t-label" style="color: var(--neutral-600);">Modal</div>
+            </div>
+            <div class="sg-token">--shadow-modal</div>
+            <div class="t-label" style="margin-top: 4px;">Modals, sheets</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ BUTTONS ══════════ -->
+    <section class="sg-section" id="buttons">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Buttons</h2>
+        <span class="sg-section-tag">4 variants · 3 sizes</span>
+      </div>
+
+      <div class="sg-preview mb-4">
+        <p class="t-eyebrow" style="margin-bottom: 14px;">Variants</p>
+        <div class="btn-group mb-4">
+          <button class="btn btn-primary">Sync accounts</button>
+          <button class="btn btn-secondary">Export CSV</button>
+          <button class="btn btn-ghost">View all →</button>
+          <button class="btn btn-danger">Disconnect bank</button>
+        </div>
+
+        <p class="t-eyebrow" style="margin-bottom: 14px;">Sizes</p>
+        <div class="btn-group mb-4">
+          <button class="btn btn-primary btn-lg">Connect bank</button>
+          <button class="btn btn-primary">Sync accounts</button>
+          <button class="btn btn-primary btn-sm">Add account</button>
+        </div>
+
+        <p class="t-eyebrow" style="margin-bottom: 14px;">Icon buttons</p>
+        <div class="btn-group">
+          <button class="btn-icon" title="Add">＋</button>
+          <button class="btn-icon" title="Sync">↻</button>
+          <button class="btn-icon" title="More">⋯</button>
+          <button class="btn-icon" title="Filter">⊟</button>
+          <button class="btn-icon" title="Settings">⚙</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ INPUTS ══════════ -->
+    <section class="sg-section" id="inputs">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Inputs</h2>
+        <span class="sg-section-tag">Text · Select · States</span>
+      </div>
+
+      <div class="sg-preview">
+        <div class="grid-2">
+          <div>
+            <div class="input-group">
+              <label class="input-label">Amount</label>
+              <div class="input-with-prefix">
+                <span class="input-prefix">$</span>
+                <input class="input-field" type="text" placeholder="0.00">
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Category</label>
+              <div class="select-wrap">
+                <select class="input-field">
+                  <option>Groceries</option>
+                  <option>Dining out</option>
+                  <option>Transport</option>
+                  <option>Entertainment</option>
+                </select>
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Date</label>
+              <input class="input-field" type="date">
+            </div>
+          </div>
+          <div>
+            <div class="input-group">
+              <label class="input-label">Note (focused)</label>
+              <input class="input-field" type="text" value="Whole Foods Market" style="border-color: var(--sg-400); box-shadow: 0 0 0 3px rgba(47,190,143,0.12);">
+              <div class="input-hint">Add context to this transaction</div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Merchant (error)</label>
+              <input class="input-field error" type="text" value="Whole Foods">
+              <div class="input-hint is-error">Category is required before saving</div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Account (disabled)</label>
+              <input class="input-field" type="text" value="Chase Checking ···4821" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ BADGES ══════════ -->
+    <section class="sg-section" id="badges">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Badges</h2>
+        <span class="sg-section-tag">5 variants</span>
+      </div>
+      <div class="sg-preview">
+        <div class="flex-row mb-4">
+          <span class="badge badge-green"><span class="badge-dot"></span>Income</span>
+          <span class="badge badge-green">Synced</span>
+          <span class="badge badge-red"><span class="badge-dot"></span>Overspent</span>
+          <span class="badge badge-warning"><span class="badge-dot"></span>Near limit</span>
+          <span class="badge badge-neutral">Pending</span>
+          <span class="badge badge-neutral">Reviewed</span>
+          <span class="badge badge-outline">Groceries</span>
+          <span class="badge badge-outline">Dining</span>
+        </div>
+        <p class="t-label">Use green for positive status (income, synced, on budget). Red for overspent. Warning for approaching limits. Neutral for state. Outline for category tags.</p>
+      </div>
+    </section>
+
+    <!-- ══════════ CARDS ══════════ -->
+    <section class="sg-section" id="cards">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Cards</h2>
+        <span class="sg-section-tag">4 variants</span>
+      </div>
+      <div class="grid-2 mb-4">
+        <div>
+          <div class="card">
+            <div class="t-eyebrow" style="margin-bottom: 6px;">Default card</div>
+            <div class="t-body" style="font-size: 13px;">White surface with subtle shadow and 0.5px border. Use for transaction groups, account rows, and most UI surfaces.</div>
+          </div>
+          <div class="sg-token" style="display: block; margin-top: 6px;">box-shadow: --shadow-card</div>
+        </div>
+        <div>
+          <div class="card-elevated">
+            <div class="t-eyebrow" style="margin-bottom: 6px;">Elevated card</div>
+            <div class="t-body" style="font-size: 13px;">Deeper shadow. Use for hover states, dropdowns, or items that need to feel "lifted" above the base surface.</div>
+          </div>
+          <div class="sg-token" style="display: block; margin-top: 6px;">box-shadow: --shadow-elevated</div>
+        </div>
+        <div>
+          <div class="card-tinted">
+            <div class="t-eyebrow" style="color: var(--sg-600); margin-bottom: 6px;">Tinted card</div>
+            <div class="t-body" style="font-size: 13px; color: var(--sg-700);">Sea green 50 background. Reserved for featured content — onboarding prompts, key insights, net worth summary.</div>
+          </div>
+          <div class="sg-token" style="display: block; margin-top: 6px;">background: --sg-50</div>
+        </div>
+        <div>
+          <div class="card-dark">
+            <div class="t-eyebrow" style="color: var(--neutral-500); margin-bottom: 6px;">Dark card</div>
+            <div class="t-body" style="font-size: 13px; color: var(--neutral-400);">Near-black surface for modals, bottom sheets, or account connection screens where focus is needed.</div>
+          </div>
+          <div class="sg-token" style="display: block; margin-top: 6px;">background: --neutral-900</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ TABS ══════════ -->
+    <section class="sg-section" id="tabs">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Tabs</h2>
+        <span class="sg-section-tag">Segmented control</span>
+      </div>
+      <div class="sg-preview">
+        <div class="tab-bar mb-4">
+          <button class="tab active">Overview</button>
+          <button class="tab">Transactions</button>
+          <button class="tab">Budgets</button>
+          <button class="tab">Net Worth</button>
+        </div>
+        <div class="tab-bar" style="max-width: 300px;">
+          <button class="tab active">Monthly</button>
+          <button class="tab">Weekly</button>
+          <button class="tab">Yearly</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ TOGGLES ══════════ -->
+    <section class="sg-section" id="toggles">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Toggles</h2>
+        <span class="sg-section-tag">On / Off</span>
+      </div>
+      <div class="sg-preview">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+            <div>
+              <div class="toggle-label">Auto-sync every 6 hours</div>
+              <div class="toggle-desc">Transactions will update automatically in the background</div>
+            </div>
+          </div>
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+            <div>
+              <div class="toggle-label">Show pending transactions</div>
+              <div class="toggle-desc">Include transactions that haven't cleared yet</div>
+            </div>
+          </div>
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+            <div>
+              <div class="toggle-label">Budget rollover</div>
+              <div class="toggle-desc">Unused budget carries forward to the next month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ AVATARS ══════════ -->
+    <section class="sg-section" id="avatars">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Avatars</h2>
+        <span class="sg-section-tag">3 sizes</span>
+      </div>
+      <div class="sg-preview">
+        <div class="flex-row">
+          <div class="avatar avatar-sm avatar-green">DH</div>
+          <div class="avatar avatar-md avatar-green">DH</div>
+          <div class="avatar avatar-lg avatar-green">DH</div>
+        </div>
+        <p class="t-label" style="margin-top: 12px;">Used in account headers and profile sections. Always initials-based — no photo uploads needed for a personal app.</p>
+      </div>
+    </section>
+
+    <!-- ══════════ STAT CARDS ══════════ -->
+    <section class="sg-section" id="stats">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Stat Cards</h2>
+        <span class="sg-section-tag">Summary numbers</span>
+      </div>
+      <div class="sg-preview">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Net worth</div>
+            <div class="stat-value">$48.2k</div>
+            <div class="stat-delta up">↑ 3.4% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Spent</div>
+            <div class="stat-value">$2,140</div>
+            <div class="stat-delta down">↑ $340 vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Saved</div>
+            <div class="stat-value">$680</div>
+            <div class="stat-delta up">↑ 12% vs last month</div>
+          </div>
+        </div>
+        <p class="t-label" style="margin-top: 12px;">Values use DM Serif Display for weight. Deltas use DM Sans in sg-500 (up) or danger-400 (down).</p>
+      </div>
+    </section>
+
+    <!-- ══════════ TRANSACTIONS ══════════ -->
+    <section class="sg-section" id="transactions">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Transaction Rows</h2>
+        <span class="sg-section-tag">Core list pattern</span>
+      </div>
+      <div class="sg-preview" style="padding: 0.5rem 1.5rem;">
+        <div class="tx-list">
+          <div class="tx-row">
+            <div class="tx-icon">🛒</div>
+            <div class="tx-info">
+              <div class="tx-name">Whole Foods Market</div>
+              <div class="tx-meta">Groceries</div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount debit">-$84.32</div>
+              <div class="tx-date">Apr 1</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-icon">☕</div>
+            <div class="tx-info">
+              <div class="tx-name">Intelligentsia Coffee</div>
+              <div class="tx-meta">Dining · <span class="badge badge-neutral" style="padding: 1px 6px; font-size: 10px;">Pending</span></div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount debit">-$6.50</div>
+              <div class="tx-date">Mar 31</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-icon">💼</div>
+            <div class="tx-info">
+              <div class="tx-name">Direct Deposit</div>
+              <div class="tx-meta">Income · <span class="badge badge-green" style="padding: 1px 6px; font-size: 10px;">Income</span></div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount credit">+$4,200.00</div>
+              <div class="tx-date">Mar 29</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-icon">🚇</div>
+            <div class="tx-info">
+              <div class="tx-name">Chicago Transit Authority</div>
+              <div class="tx-meta">Transport</div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount debit">-$2.50</div>
+              <div class="tx-date">Mar 29</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-icon">🎬</div>
+            <div class="tx-info">
+              <div class="tx-name">Netflix</div>
+              <div class="tx-meta">Subscriptions</div>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amount debit">-$15.49</div>
+              <div class="tx-date">Mar 28</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="t-label" style="margin-top: 8px;">Amounts use monospace font. Debits are neutral-800, credits are sg-500. 0.5px neutral-100 dividers, no divider on last row.</p>
+    </section>
+
+    <!-- ══════════ PROGRESS ══════════ -->
+    <section class="sg-section" id="progress">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Budget Progress</h2>
+        <span class="sg-section-tag">3 states</span>
+      </div>
+      <div class="sg-preview">
+        <div class="progress-block">
+          <div class="progress-header">
+            <span class="progress-name">Groceries</span>
+            <span class="progress-nums"><span>$183</span> / $250</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill normal" style="width: 73%;"></div></div>
+        </div>
+        <div class="progress-block">
+          <div class="progress-header">
+            <span class="progress-name">Entertainment</span>
+            <span class="progress-nums"><span>$165</span> / $200</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill warning" style="width: 82%;"></div></div>
+        </div>
+        <div class="progress-block">
+          <div class="progress-header">
+            <span class="progress-name">Dining out</span>
+            <span class="progress-nums" style="color: var(--danger-400);"><span style="color: var(--danger-400);">$310</span> / $200</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill over" style="width: 100%;"></div></div>
+        </div>
+        <div class="progress-block">
+          <div class="progress-header">
+            <span class="progress-name">Transport</span>
+            <span class="progress-nums"><span>$40</span> / $100</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill normal" style="width: 40%;"></div></div>
+        </div>
+      </div>
+      <p class="t-label" style="margin-top: 8px;">sg-400 below 75% (normal) → warning-400 at 75–99% → danger-400 at 100%+.</p>
+    </section>
+
+    <!-- ══════════ EMPTY STATES ══════════ -->
+    <section class="sg-section" id="empty">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Empty States</h2>
+        <span class="sg-section-tag">No data pattern</span>
+      </div>
+      <div class="sg-preview">
+        <div class="empty-state">
+          <div class="empty-icon">🏦</div>
+          <div class="empty-title">No accounts connected</div>
+          <div class="empty-desc">Connect your bank to start tracking transactions and building your financial picture.</div>
+          <button class="btn btn-primary">Connect a bank account</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ TOASTS ══════════ -->
+    <section class="sg-section" id="toasts">
+      <div class="sg-section-header">
+        <h2 class="sg-section-title">Toasts</h2>
+        <span class="sg-section-tag">Success · Error</span>
+      </div>
+      <div class="sg-preview">
+        <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
+          <div class="toast toast-success">
+            <div class="toast-icon">✓</div>
+            <div>
+              <div class="toast-title">Sync complete</div>
+              <div class="toast-desc">47 new transactions imported from Chase Checking.</div>
+            </div>
+          </div>
+          <div class="toast toast-error">
+            <div class="toast-icon" style="color: var(--danger-400);">✕</div>
+            <div>
+              <div class="toast-title">Sync failed</div>
+              <div class="toast-desc">Could not connect to Chase. Check your connection and try again.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.sg-content -->
+  </main>
+</div>
+
+<script>
+  // Active nav highlighting on scroll
+  const sections = document.querySelectorAll('.sg-section');
+  const navLinks = document.querySelectorAll('.sg-nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Tab interactivity demo
+  document.querySelectorAll('.tab-bar').forEach(bar => {
+    bar.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        bar.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
