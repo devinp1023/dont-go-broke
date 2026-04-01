@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, DM_Sans } from "next/font/google";
+import AppShell from "@/components/AppShell";
 import "./globals.css";
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -29,7 +30,9 @@ export default function RootLayout({
       lang="en"
       className={`${dmSerifDisplay.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

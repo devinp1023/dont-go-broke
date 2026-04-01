@@ -4,7 +4,7 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 
 ## Tech Stack
 
-- Next.js 16 (App Router, TypeScript, Tailwind CSS)
+- Next.js 16 (App Router, TypeScript, Tailwind CSS v4)
 - Supabase (Postgres + Auth + Row Level Security)
 - Plaid (bank sync — currently Sandbox mode)
 - `@supabase/ssr` for auth (not the deprecated `auth-helpers-nextjs`)
@@ -16,6 +16,29 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - **Plaid**: All Plaid API calls are server-side only (`lib/plaid.ts` uses `server-only`). Access tokens are never returned to the client.
 - **RLS**: Every table has Row Level Security with `auth.uid() = user_id` policy. All tables have a `user_id` column.
 
+## Design System
+
+All styling goes through the design system. No hardcoded fonts, colors, or sizes in components.
+
+- **Reference**: `style-guide.html` — living visual reference for all tokens and components
+- **Tokens**: Defined in `app/globals.css` via Tailwind v4 `@theme inline`
+- **Fonts**: DM Serif Display (`font-display`) + DM Sans (`font-body`), loaded via `next/font/google` in `app/layout.tsx`
+
+### Key Tokens
+- **Colors**: `sg-50`–`sg-900` (brand green), `neutral-50`–`neutral-900`, `danger-*`, `warning-*`
+- **Number colors**: `sg-400` for positive, `danger-400` for negative
+- **Type scale**: `text-hero` (47px), `text-display` (33px), `text-heading` (22px), `text-body` (20px), `text-label` (17px), `text-eyebrow` (16px), `text-number` (37px), `text-mono` (19px)
+- **Radius**: `rounded-sm` (6px), `rounded-md` (10px), `rounded-lg` (16px), `rounded-xl` (24px)
+- **Shadows**: `shadow-card`, `shadow-elevated`, `shadow-modal`
+
+### Component Classes (in globals.css)
+Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges, Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`)
+
+### Rules
+- **No hardcoded styles**: All colors, fonts, and sizes must use design system tokens or component classes
+- **Page titles**: Use `text-hero font-display`
+- **Update style-guide.html** when adding new tokens or components
+
 ## File Structure
 
 - `proxy.ts` — Auth middleware (redirects unauthenticated users to /login)
@@ -25,7 +48,18 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - `lib/plaid.ts` — Server-only Plaid client singleton
 - `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
+- `app/globals.css` — Design system tokens + component classes
+- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages)
+- `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Accounts, Net Worth)
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
+
+## Pages
+
+- `/` — Home (dashboard with transactions, sync, bank connect)
+- `/transactions` — Coming soon
+- `/accounts` — Coming soon
+- `/net-worth` — Coming soon
+- `/login` — Magic link auth (no sidebar)
 
 ## Security (CRITICAL — READ THIS FIRST)
 
@@ -40,11 +74,6 @@ Security is the #1 priority in every change to this codebase. The GitHub repo is
 - **No `NEXT_PUBLIC_` on secrets**: Only `SUPABASE_URL` and `SUPABASE_ANON_KEY` may have the `NEXT_PUBLIC_` prefix. Everything else is server-only.
 - **Generic errors**: Never return stack traces, Supabase errors, or Plaid error details to the client. Return generic error messages only.
 - **Git hygiene**: Never commit database dumps, seed files with real data, Plaid tokens, or Supabase access tokens. Run `git log --all -- .env.local` to verify before pushing.
-
-## Current State
-
-- Phase 1 complete: auth, Plaid Sandbox bank sync, transaction list, PWA manifest
-- Not yet built: budgets, charts, net worth tracking, hosting
 
 ## Commands
 

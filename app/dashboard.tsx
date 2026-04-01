@@ -28,25 +28,23 @@ export default function Dashboard({ transactions: initialTransactions }: { trans
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-display font-display text-neutral-900">Don&apos;t Go Broke</h1>
-          <div className="flex gap-3">
-            <button
-              onClick={handleSync}
-              disabled={syncing}
-              className="btn btn-secondary disabled:opacity-50"
-            >
-              {syncing ? 'Syncing...' : 'Sync'}
-            </button>
-            <PlaidLinkButton onSuccess={() => window.location.reload()} />
-          </div>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-hero font-display text-neutral-900">Home</h1>
+        <div className="flex gap-3">
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="btn btn-secondary disabled:opacity-50"
+          >
+            {syncing ? 'Syncing...' : 'Sync'}
+          </button>
+          <PlaidLinkButton onSuccess={() => window.location.reload()} />
         </div>
+      </div>
 
-        <div className="card">
-          <TransactionList transactions={transactions} />
-        </div>
+      <div className="card">
+        <TransactionList transactions={transactions} />
       </div>
     </div>
   )
