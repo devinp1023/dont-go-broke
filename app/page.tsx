@@ -6,15 +6,15 @@ export default async function Home() {
 
   const { data: transactions } = await supabase
     .from('transactions')
-    .select('amount, date')
+    .select('amount, date, category')
     .order('date', { ascending: false })
 
   let income = 0
   let expenses = 0
   let monthLabel = ''
+  const categoryMap: Record<string, number> = {}
 
   if (transactions && transactions.length > 0) {
-    // Use the most recent transaction's month
     const latestDate = new Date(transactions[0].date + 'T00:00:00')
     const latestMonth = latestDate.getMonth()
     const latestYear = latestDate.getFullYear()
@@ -29,9 +29,15 @@ export default async function Home() {
         income += Math.abs(txn.amount)
       } else {
         expenses += txn.amount
+        const cat = txn.category || 'Uncategorized'
+        categoryMap[cat] = (categoryMap[cat] || 0) + txn.amount
       }
     }
   }
 
-  return <Dashboard income={income} expenses={expenses} monthLabel={monthLabel} />
+  const categoryBreakdown = Object.entries(categoryMap)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount)
+
+  return <Dashboard income={income} expenses={expenses} monthLabel={monthLabel} categoryBreakdown={categoryBreakdown} />
 }

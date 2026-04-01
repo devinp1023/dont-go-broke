@@ -9,6 +9,10 @@ type Transaction = {
   category: string | null
 }
 
+function prettifyCategory(raw: string) {
+  return raw.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
+}
+
 export default function TransactionList({ transactions }: { transactions: Transaction[] }) {
   if (transactions.length === 0) {
     return (
@@ -27,7 +31,7 @@ export default function TransactionList({ transactions }: { transactions: Transa
           <div className="tx-icon">💳</div>
           <div className="tx-info">
             <div className="tx-name">{txn.merchant_name || txn.name}</div>
-            <div className="tx-meta">{txn.category || 'Uncategorized'}</div>
+            <div className="tx-meta">{txn.category ? prettifyCategory(txn.category) : 'Uncategorized'}</div>
           </div>
           <div className="tx-right">
             <div className={`tx-amount ${txn.amount > 0 ? 'debit' : 'credit'}`}>

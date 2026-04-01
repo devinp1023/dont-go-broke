@@ -1,6 +1,13 @@
 'use client'
 
-export default function Dashboard({ income, expenses, monthLabel }: { income: number; expenses: number; monthLabel: string }) {
+import SpendBreakdown from '@/components/SpendBreakdown'
+
+type CategoryData = {
+  category: string
+  amount: number
+}
+
+export default function Dashboard({ income, expenses, monthLabel, categoryBreakdown }: { income: number; expenses: number; monthLabel: string; categoryBreakdown: CategoryData[] }) {
   const maxVal = Math.max(income, expenses, 1)
   const incomePercent = (income / maxVal) * 100
   const expensePercent = (expenses / maxVal) * 100
@@ -34,6 +41,8 @@ export default function Dashboard({ income, expenses, monthLabel }: { income: nu
           />
         </div>
       </div>
+
+      <SpendBreakdown data={categoryBreakdown} />
     </div>
   )
 }
