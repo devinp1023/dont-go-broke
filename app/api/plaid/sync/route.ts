@@ -45,6 +45,8 @@ export async function POST() {
       return NextResponse.json({ synced: 0 })
     }
 
+    const ASSET_TYPES = new Set(['depository', 'investment', 'brokerage', 'other'])
+
     let totalSynced = 0
 
     for (const item of plaidItems) {
@@ -139,6 +141,44 @@ export async function POST() {
       }
 
       totalSynced += allTransactions.length
+    }
+
+    // Record net worth snapshot for today
+    const { data: allAccounts } = await supabase
+      .from('accounts')
+      .select('id, name, type, subtype, current_balance')
+      .eq('user_id', user.id)
+
+    if (allAccounts && allAccounts.length > 0) {
+      let totalAssets = 0
+      let totalLiabilities = 0
+      const breakdown = allAccounts.map((a) => {
+        const balance = a.current_balance ?? 0
+        if (ASSET_TYPES.has(a.type ?? '')) {
+          totalAssets += balance
+        } else {
+          totalLiabilities += balance
+        }
+        return {
+          account_id: a.id,
+          name: a.name,
+          type: a.type,
+          subtype: a.subtype,
+          balance,
+        }
+      })
+
+      await supabase.from('net_worth_snapshots').upsert(
+        {
+          user_id: user.id,
+          date: new Date().toISOString().split('T')[0],
+          total_assets: totalAssets,
+          total_liabilities: totalLiabilities,
+          net_worth: totalAssets - totalLiabilities,
+          account_breakdown: breakdown,
+        },
+        { onConflict: 'user_id,date' }
+      )
     }
 
     return NextResponse.json({ synced: totalSynced })
