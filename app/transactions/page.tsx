@@ -8,7 +8,7 @@ export default async function TransactionsPage() {
     .from('transactions')
     .select('id, date, name, merchant_name, amount, category')
     .order('date', { ascending: false })
-    .limit(100)
+    .limit(1000)
 
   return <TransactionsView transactions={transactions || []} />
 }

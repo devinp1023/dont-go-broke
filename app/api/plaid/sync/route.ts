@@ -75,26 +75,49 @@ export async function POST() {
           .eq('user_id', user.id)
       }
 
-      // Fetch transactions for the last 30 days
+      // Fetch up to 2 years of transaction history, paginated
       const now = new Date()
-      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-      const transactionsResponse = await plaidClient.transactionsGet({
+      const twoYearsAgo = new Date(now.getTime() - 730 * 24 * 60 * 60 * 1000)
+      const startDate = twoYearsAgo.toISOString().split('T')[0]
+      const endDate = now.toISOString().split('T')[0]
+
+      const firstPage = await plaidClient.transactionsGet({
         access_token: item.access_token,
-        start_date: thirtyDaysAgo.toISOString().split('T')[0],
-        end_date: now.toISOString().split('T')[0],
+        start_date: startDate,
+        end_date: endDate,
+        options: { count: 500, offset: 0 },
       })
 
+      const allTransactions = [...firstPage.data.transactions]
+      const totalAvailable = firstPage.data.total_transactions
+      let offset = allTransactions.length
+
+      while (offset < totalAvailable) {
+        const response = await plaidClient.transactionsGet({
+          access_token: item.access_token,
+          start_date: startDate,
+          end_date: endDate,
+          options: { count: 500, offset },
+        })
+        allTransactions.push(...response.data.transactions)
+        offset += response.data.transactions.length
+      }
+
       // Find which transactions have been manually categorized
-      const plaidTxnIds = transactionsResponse.data.transactions.map((t) => t.transaction_id)
-      const { data: manualTxns } = await supabase
-        .from('transactions')
-        .select('plaid_transaction_id')
-        .in('plaid_transaction_id', plaidTxnIds)
-        .eq('category_manual', true)
+      const plaidTxnIds = allTransactions.map((t) => t.transaction_id)
+      // Query in batches to avoid Supabase filter limits
+      const manualSet = new Set<string>()
+      for (let i = 0; i < plaidTxnIds.length; i += 500) {
+        const batch = plaidTxnIds.slice(i, i + 500)
+        const { data: manualTxns } = await supabase
+          .from('transactions')
+          .select('plaid_transaction_id')
+          .in('plaid_transaction_id', batch)
+          .eq('category_manual', true)
+        manualTxns?.forEach((t) => manualSet.add(t.plaid_transaction_id))
+      }
 
-      const manualSet = new Set(manualTxns?.map((t) => t.plaid_transaction_id) || [])
-
-      for (const txn of transactionsResponse.data.transactions) {
+      for (const txn of allTransactions) {
         const base = {
           user_id: user.id,
           account_id: accountMap.get(txn.account_id),
@@ -115,7 +138,7 @@ export async function POST() {
         await supabase.from('transactions').upsert(data, { onConflict: 'plaid_transaction_id' })
       }
 
-      totalSynced += transactionsResponse.data.transactions.length
+      totalSynced += allTransactions.length
     }
 
     return NextResponse.json({ synced: totalSynced })

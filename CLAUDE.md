@@ -34,7 +34,7 @@ All styling goes through the design system. No hardcoded fonts, colors, or sizes
 - **Shadows**: `shadow-card`, `shadow-elevated`, `shadow-modal`
 
 ### Component Classes (in globals.css)
-Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges, Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`)
+Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`)
 
 ### Rules
 - **No hardcoded styles**: All colors, fonts, and sizes must use design system tokens or component classes
@@ -49,23 +49,35 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `lib/supabase/proxy.ts` — Supabase client for proxy/middleware context
 - `lib/plaid.ts` — Server-only Plaid client singleton
 - `lib/anthropic.ts` — Server-only Anthropic client factory (reads API key at call time due to Turbopack env quirk)
-- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync
+- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (maps Plaid categories to custom categories)
+- `app/api/transactions/update-category/` — POST endpoint for manual category overrides
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
 - `app/globals.css` — Design system tokens + component classes
 - `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages)
 - `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Accounts, Net Worth)
 - `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
-- `components/TransactionList.tsx` — Transaction row list with design system styling
+- `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
 - `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
+- `supabase/migrations/003_category_manual.sql` — Adds `category_manual` boolean to transactions
 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
-- `/transactions` — Transaction list with sync button
+- `/transactions` — Transaction list grouped by day, auto-syncs on load, clickable category tags for manual override
 - `/accounts` — Sync and Connect Bank buttons (coming soon)
 - `/net-worth` — Coming soon
 - `/login` — Magic link auth (no sidebar)
+
+## Categories
+
+Custom category system (not Plaid's raw categories). Plaid categories are mapped during sync via `PLAID_TO_CATEGORY` in the sync route.
+
+**Categories**: Income, Rent, Utilities, Restaurants, Groceries, Shopping, Travel, Bars and nightlife, Entertainment, Transportation, Gym, Personal care, Health, Internal transfer, Other
+
+**Category colors**: Each category has a matching badge class (`badge-cat-*` in globals.css) and pie chart color (`CATEGORY_COLORS` in SpendBreakdown.tsx). When adding a new category, update both.
+
+**Manual overrides**: Users can click a category tag to change it. Manual overrides set `category_manual = true` in the DB, which prevents sync from overwriting the category.
 
 ## Security (CRITICAL — READ THIS FIRST)
 
