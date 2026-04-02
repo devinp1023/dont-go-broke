@@ -9,7 +9,9 @@ async function getOrGenerateInsight(
   expenses: number,
   topCategories: { category: string; amount: number }[]
 ): Promise<string> {
-  const today = new Date().toISOString().split('T')[0]
+  // Use local date to avoid UTC timezone mismatch
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 
   // Check for cached insight
   const { data: existing, error: insightError } = await supabase
@@ -26,14 +28,20 @@ async function getOrGenerateInsight(
     .join(', ')
 
   try {
-    // Read API key from .env.local via fs as workaround for Turbopack env stripping
-    const fs = await import('fs')
-    const path = await import('path')
-    const envPath = path.join(process.cwd(), '.env.local')
-    const envContent = fs.readFileSync(envPath, 'utf-8')
-    const match = envContent.match(/ANTHROPIC_API_KEY=(.+)/)
-    const apiKey = match?.[1]?.trim()
-    if (!apiKey) throw new Error('ANTHROPIC_API_KEY not found in .env.local')
+    // Turbopack strips non-NEXT_PUBLIC_ env vars in server components,
+    // so fall back to reading .env.local from disk if needed
+    let apiKey = process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      const fs = await import('fs')
+      const path = await import('path')
+      const envPath = path.join(process.cwd(), '.env.local')
+      if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf-8')
+        const match = envContent.match(/ANTHROPIC_API_KEY=(.+)/)
+        apiKey = match?.[1]?.trim()
+      }
+    }
+    if (!apiKey) throw new Error('ANTHROPIC_API_KEY not configured')
     const anthropic = getAnthropicClient(apiKey)
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',

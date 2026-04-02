@@ -29,17 +29,18 @@ All styling goes through the design system. No hardcoded fonts, colors, or sizes
 ### Key Tokens
 - **Colors**: `sg-50`–`sg-900` (brand green), `neutral-50`–`neutral-900`, `danger-*`, `warning-*`
 - **Number colors**: `sg-400` for positive, `danger-400` for negative
-- **Type scale**: `text-hero` (47px), `text-display` (33px), `text-heading` (22px), `text-body` (20px), `text-label` (17px), `text-eyebrow` (16px), `text-number` (37px), `text-mono` (19px)
+- **Type scale**: `text-hero` (47px/28px mobile), `text-display` (33px/24px), `text-heading` (22px/19px), `text-body` (20px/17px), `text-label` (17px/15px), `text-eyebrow` (16px), `text-number` (37px/28px), `text-mono` (19px/16px)
 - **Radius**: `rounded-sm` (6px), `rounded-md` (10px), `rounded-lg` (16px), `rounded-xl` (24px)
 - **Shadows**: `shadow-card`, `shadow-elevated`, `shadow-modal`
 
 ### Component Classes (in globals.css)
-Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`)
+Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`), Mobile layout (`.mobile-header`, `.sidebar-overlay`, `.sidebar-close`, `.spend-breakdown-layout`, `.spend-chart-wrap`, `.chart-container`, `.category-dropdown`)
 
 ### Rules
 - **No hardcoded styles**: All colors, fonts, and sizes must use design system tokens or component classes
 - **Page titles**: Use `text-hero font-display`
 - **Update style-guide.html** when adding new tokens or components
+- **Mobile-first responsive**: All responsive overrides live in a single `@media (max-width: 767px)` block at the bottom of `globals.css`. Breakpoint is 768px (matches Tailwind `md:`)
 
 ## File Structure
 
@@ -55,8 +56,9 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `app/api/transactions/update-category/` — POST endpoint for manual category overrides
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
 - `app/globals.css` — Design system tokens + component classes
-- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages)
-- `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Accounts, Net Worth)
+- `app/api/insights/refresh/` — POST endpoint to delete today's cached insight (forces regeneration on next page load)
+- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle)
+- `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Net Worth, Account Management). Slide-out drawer on mobile, fixed on desktop
 - `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
 - `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
@@ -67,9 +69,9 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
-- `/transactions` — Transaction list grouped by day, month pagination with fixed arrow nav, auto-syncs on load, clickable category tags for manual override
-- `/accounts` — Account management: institutions grouped with accounts, balances, inline rename, disconnect, auto-sync on new bank connection. Debt/loan balances show in red.
-- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots), account breakdown grouped by type (depository, investment, credit, loan). Snapshots recorded on each Plaid sync, one per day (upserted).
+- `/transactions` — Transaction list grouped by day, inline month pagination arrows, auto-syncs on load, clickable category tags for manual override
+- `/accounts` — Account management: connected institutions with account count, disconnect, sync. No individual account details (those live on Net Worth page).
+- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots), account breakdown grouped by type with institution names (depository, investment, credit, loan). Snapshots recorded on each Plaid sync, one per day (upserted).
 - `/login` — Magic link auth (no sidebar)
 
 ## Categories

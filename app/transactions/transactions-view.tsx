@@ -67,31 +67,29 @@ export default function TransactionsView({ transactions: initialTransactions }: 
         <h1 className="text-hero font-display text-neutral-900">Transactions</h1>
       </div>
 
-      <div className="flex items-center justify-center mb-6">
+      <div className="flex items-center justify-center gap-4 mb-6">
+        <button
+          onClick={() => setMonthIndex((i) => Math.max(i - 1, 0))}
+          disabled={monthIndex <= 0}
+          className="btn btn-icon disabled:opacity-25"
+          style={{ width: 44, height: 44, fontSize: 24, background: 'var(--color-sg-500)', color: 'white', border: 'none' }}
+          aria-label="Newer month"
+        >
+          &larr;
+        </button>
         <span className="text-heading font-display text-neutral-900">
           {formatMonth(currentMonth)}
         </span>
+        <button
+          onClick={() => setMonthIndex((i) => Math.min(i + 1, months.length - 1))}
+          disabled={monthIndex >= months.length - 1}
+          className="btn btn-icon disabled:opacity-25"
+          style={{ width: 44, height: 44, fontSize: 24, background: 'var(--color-sg-500)', color: 'white', border: 'none' }}
+          aria-label="Older month"
+        >
+          &rarr;
+        </button>
       </div>
-
-      <button
-        onClick={() => setMonthIndex((i) => Math.max(i - 1, 0))}
-        disabled={monthIndex <= 0}
-        className="btn btn-icon text-display disabled:opacity-25 fixed top-1/2 -translate-y-1/2 z-10"
-        style={{ left: 'calc(50% + 110px - 24rem - 40px - 57px)', width: 57, height: 57, fontSize: 32, background: 'var(--color-sg-500)', color: 'white', border: 'none' }}
-        aria-label="Newer month"
-      >
-        &larr;
-      </button>
-
-      <button
-        onClick={() => setMonthIndex((i) => Math.min(i + 1, months.length - 1))}
-        disabled={monthIndex >= months.length - 1}
-        className="btn btn-icon text-display disabled:opacity-25 fixed top-1/2 -translate-y-1/2 z-10"
-        style={{ left: 'calc(50% + 110px + 24rem + 40px)', width: 57, height: 57, fontSize: 32, background: 'var(--color-sg-500)', color: 'white', border: 'none' }}
-        aria-label="Older month"
-      >
-        &rarr;
-      </button>
 
       <TransactionList
         transactions={filtered}

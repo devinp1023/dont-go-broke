@@ -79,7 +79,7 @@ function CategoryDropdown({
   return (
     <div
       ref={ref}
-      className="absolute left-0 top-full mt-1 bg-white border border-neutral-100 rounded-lg shadow-elevated z-50 py-1 max-h-64 overflow-y-auto"
+      className="category-dropdown absolute left-0 top-full mt-1 bg-white border border-neutral-100 rounded-lg shadow-elevated z-50 py-1 max-h-64 overflow-y-auto"
       style={{ minWidth: 200 }}
     >
       {ALL_CATEGORIES.map((cat) => (

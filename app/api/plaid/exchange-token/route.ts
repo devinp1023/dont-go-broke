@@ -13,6 +13,10 @@ export async function POST(request: Request) {
 
     const { public_token, institution_name } = await request.json()
 
+    if (!public_token || !institution_name?.trim()) {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+    }
+
     // Exchange public token for access token
     const exchangeResponse = await plaidClient.itemPublicTokenExchange({
       public_token,

@@ -14,7 +14,7 @@ export default async function NetWorthPage() {
   // Fetch all accounts for current breakdown
   const { data: accounts } = await supabase
     .from('accounts')
-    .select('id, name, type, subtype, current_balance, currency')
+    .select('id, name, type, subtype, current_balance, currency, plaid_item_id, plaid_items(institution_name)')
     .eq('user_id', user.id)
 
   // Fetch historical snapshots
@@ -34,6 +34,7 @@ export default async function NetWorthPage() {
     } else {
       totalLiabilities += balance
     }
+    const plaidItem = a.plaid_items as unknown as { institution_name: string } | null
     return {
       id: a.id,
       name: a.name,
@@ -41,6 +42,7 @@ export default async function NetWorthPage() {
       subtype: a.subtype,
       balance,
       currency: a.currency ?? 'USD',
+      institution: plaidItem?.institution_name ?? null,
     }
   })
 

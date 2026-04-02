@@ -9,6 +9,7 @@ interface AccountSummary {
   subtype: string | null
   balance: number
   currency: string
+  institution: string | null
 }
 
 interface SnapshotPoint {
@@ -131,7 +132,7 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
             Chart will appear after your second account sync.
           </div>
         ) : (
-          <div style={{ width: '100%', height: 300 }}>
+          <div className="chart-container" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={snapshots} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-neutral-100)" />
@@ -206,10 +207,15 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
             </div>
             {group.accounts.map((acct) => (
               <div key={acct.id} className="flex items-center justify-between py-3 border-b border-neutral-100 last:border-b-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-label font-medium text-neutral-900 truncate">{acct.name}</span>
-                  {acct.subtype && (
-                    <span className="badge badge-neutral text-xs">{acct.subtype}</span>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-label font-medium text-neutral-900 truncate">{acct.name}</span>
+                    {acct.subtype && (
+                      <span className="badge badge-neutral text-xs">{acct.subtype}</span>
+                    )}
+                  </div>
+                  {acct.institution && (
+                    <span className="text-eyebrow text-neutral-500">{acct.institution}</span>
                   )}
                 </div>
                 <span className={`text-label font-semibold shrink-0 ml-4 ${isAsset ? 'text-sg-400' : 'text-danger-400'}`}>

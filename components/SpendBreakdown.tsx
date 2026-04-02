@@ -63,8 +63,8 @@ export default function SpendBreakdown({ data, monthLabel }: { data: CategoryDat
     <div className="card">
       <div className="stat-label mb-4">{monthLabel ? `${monthLabel} Spend Breakdown` : 'Spend Breakdown'}</div>
 
-      <div className="flex items-center gap-8">
-        <div style={{ width: 200, height: 200, flexShrink: 0 }}>
+      <div className="spend-breakdown-layout flex items-center gap-8">
+        <div className="spend-chart-wrap" style={{ width: 200, height: 200, flexShrink: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -108,7 +108,7 @@ export default function SpendBreakdown({ data, monthLabel }: { data: CategoryDat
                   />
                   <span className="text-label text-neutral-700 truncate">{pretty.category}</span>
                 </div>
-                <span className="flex-shrink-0 text-right" style={{ minWidth: '180px', fontVariantNumeric: 'tabular-nums' }}>
+                <span className="flex-shrink-0 text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   <span className="text-label font-medium text-neutral-800">{formatDollar(pretty.amount)}</span>
                   <span className="text-label text-neutral-400" style={{ display: 'inline-block', width: '70px', textAlign: 'right', marginLeft: '12px' }}>({percent}%)</span>
                 </span>
