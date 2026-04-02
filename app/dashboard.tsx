@@ -7,14 +7,16 @@ type CategoryData = {
   amount: number
 }
 
-export default function Dashboard({ income, expenses, monthLabel, categoryBreakdown }: { income: number; expenses: number; monthLabel: string; categoryBreakdown: CategoryData[] }) {
+export default function Dashboard({ income, expenses, monthLabel, categoryBreakdown, insight }: { income: number; expenses: number; monthLabel: string; categoryBreakdown: CategoryData[]; insight?: string }) {
   const maxVal = Math.max(income, expenses, 1)
   const incomePercent = (income / maxVal) * 100
   const expensePercent = (expenses / maxVal) * 100
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-hero font-display text-neutral-900 mb-8">Hello, Devin!</h1>
+      <h1 className="text-hero font-display text-neutral-900 mb-2">Hello, Devin!</h1>
+      {insight && <p className="text-body text-neutral-500 mb-8">{insight}</p>}
+      {!insight && <div className="mb-8" />}
 
       <div className="card mb-8">
         {monthLabel && <div className="stat-label mb-4">{monthLabel}</div>}
