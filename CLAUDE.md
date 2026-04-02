@@ -8,7 +8,7 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - Supabase (Postgres + Auth + Row Level Security)
 - Plaid (bank sync — Sandbox for testing, Development for real banks, both free)
 - Anthropic SDK (`@anthropic-ai/sdk`) for AI-generated financial insights (Claude Haiku)
-- Recharts for data visualization (pie charts)
+- Recharts for data visualization (pie charts, line charts)
 - `@supabase/ssr` for auth (not the deprecated `auth-helpers-nextjs`)
 
 ## Key Architecture Decisions
@@ -49,7 +49,7 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `lib/supabase/proxy.ts` — Supabase client for proxy/middleware context
 - `lib/plaid.ts` — Server-only Plaid client singleton
 - `lib/anthropic.ts` — Server-only Anthropic client factory (reads API key at call time due to Turbopack env quirk)
-- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (fetches up to 2 years of history, maps Plaid categories to custom categories, respects manual overrides)
+- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (fetches up to 2 years of history, maps Plaid categories to custom categories, respects manual overrides, records daily net worth snapshots)
 - `app/api/accounts/disconnect/` — POST endpoint to disconnect an institution (cascades to accounts + transactions)
 - `app/api/accounts/rename/` — POST endpoint to rename an account
 - `app/api/transactions/update-category/` — POST endpoint for manual category overrides
@@ -62,13 +62,14 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
 - `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
 - `supabase/migrations/003_category_manual.sql` — Adds `category_manual` boolean to transactions
+- `supabase/migrations/004_net_worth_snapshots.sql` — Schema: net_worth_snapshots (daily snapshots with assets, liabilities, net worth, account breakdown JSONB)
 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
 - `/transactions` — Transaction list grouped by day, month pagination with fixed arrow nav, auto-syncs on load, clickable category tags for manual override
 - `/accounts` — Account management: institutions grouped with accounts, balances, inline rename, disconnect, auto-sync on new bank connection. Debt/loan balances show in red.
-- `/net-worth` — Coming soon
+- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots), account breakdown grouped by type (depository, investment, credit, loan). Snapshots recorded on each Plaid sync, one per day (upserted).
 - `/login` — Magic link auth (no sidebar)
 
 ## Categories
