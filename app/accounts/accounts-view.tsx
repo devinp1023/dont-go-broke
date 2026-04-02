@@ -145,10 +145,7 @@ export default function AccountsView({ institutions }: { institutions: Instituti
     router.refresh()
   }
 
-  const totalBalance = institutions.reduce(
-    (sum, inst) => sum + inst.accounts.reduce((s, a) => s + (a.currentBalance ?? 0), 0),
-    0
-  )
+  const totalAccounts = institutions.reduce((s, i) => s + i.accounts.length, 0)
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -179,15 +176,9 @@ export default function AccountsView({ institutions }: { institutions: Instituti
       ) : (
         <>
           {/* Summary */}
-          <div className="card mb-6 p-5">
-            <div className="text-label text-neutral-500 mb-1">Total Balance</div>
-            <div className={`text-number font-semibold ${totalBalance >= 0 ? 'text-sg-400' : 'text-danger-400'}`}>
-              {formatCurrency(totalBalance, 'USD')}
-            </div>
-            <div className="text-xs text-neutral-500 mt-1">
-              {institutions.length} institution{institutions.length !== 1 ? 's' : ''} &middot;{' '}
-              {institutions.reduce((s, i) => s + i.accounts.length, 0)} account{institutions.reduce((s, i) => s + i.accounts.length, 0) !== 1 ? 's' : ''}
-            </div>
+          <div className="text-label text-neutral-500 mb-4">
+            {institutions.length} institution{institutions.length !== 1 ? 's' : ''} &middot;{' '}
+            {totalAccounts} account{totalAccounts !== 1 ? 's' : ''}
           </div>
 
           {/* Institution cards */}

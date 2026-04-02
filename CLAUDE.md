@@ -50,6 +50,8 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `lib/plaid.ts` — Server-only Plaid client singleton
 - `lib/anthropic.ts` — Server-only Anthropic client factory (reads API key at call time due to Turbopack env quirk)
 - `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (fetches up to 2 years of history, maps Plaid categories to custom categories, respects manual overrides)
+- `app/api/accounts/disconnect/` — POST endpoint to disconnect an institution (cascades to accounts + transactions)
+- `app/api/accounts/rename/` — POST endpoint to rename an account
 - `app/api/transactions/update-category/` — POST endpoint for manual category overrides
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
 - `app/globals.css` — Design system tokens + component classes
@@ -65,7 +67,7 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
 - `/transactions` — Transaction list grouped by day, month pagination with fixed arrow nav, auto-syncs on load, clickable category tags for manual override
-- `/accounts` — Sync and Connect Bank buttons (coming soon)
+- `/accounts` — Account management: institutions grouped with accounts, balances, inline rename, disconnect, auto-sync on new bank connection. Debt/loan balances show in red.
 - `/net-worth` — Coming soon
 - `/login` — Magic link auth (no sidebar)
 
