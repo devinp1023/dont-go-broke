@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import TransactionList from '@/components/TransactionList'
 
 type Transaction = {
@@ -14,34 +15,37 @@ type Transaction = {
 
 export default function TransactionsView({ transactions: initialTransactions }: { transactions: Transaction[] }) {
   const [transactions, setTransactions] = useState(initialTransactions)
-  const [syncing, setSyncing] = useState(false)
+  const hasSynced = useRef(false)
+  const router = useRouter()
 
-  async function handleSync() {
-    setSyncing(true)
-    try {
-      await fetch('/api/plaid/sync', { method: 'POST' })
-      window.location.reload()
-    } finally {
-      setSyncing(false)
+  useEffect(() => {
+    if (!hasSynced.current) {
+      hasSynced.current = true
+      fetch('/api/plaid/sync', { method: 'POST' }).then(() => {
+        router.refresh()
+      })
     }
-  }
+  }, [])
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8">
         <h1 className="text-hero font-display text-neutral-900">Transactions</h1>
-        <button
-          onClick={handleSync}
-          disabled={syncing}
-          className="btn btn-secondary disabled:opacity-50"
-        >
-          {syncing ? 'Syncing...' : 'Sync'}
-        </button>
       </div>
 
-      <div className="card">
-        <TransactionList transactions={transactions} />
-      </div>
+      <TransactionList
+        transactions={transactions}
+        onCategoryChange={async (txnId, newCategory) => {
+          setTransactions((prev) =>
+            prev.map((t) => (t.id === txnId ? { ...t, category: newCategory } : t))
+          )
+          await fetch('/api/transactions/update-category', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionId: txnId, category: newCategory }),
+          })
+        }}
+      />
     </div>
   )
 }

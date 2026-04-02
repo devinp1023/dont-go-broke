@@ -273,6 +273,23 @@ body {
 .badge-warning { background: var(--color-warning-50); color: #8a5a00; }
 .badge-warning .badge-dot { background: var(--color-warning-400); }
 
+/* ── Category tags ── */
+.badge-cat-income          { background: var(--color-sg-50);      color: var(--color-sg-700); }
+.badge-cat-rent            { background: #fdf0e6;                color: #7c4a1e; }
+.badge-cat-utilities       { background: #eef0f4;                color: #3d4551; }
+.badge-cat-restaurants     { background: #fff3e6;                color: #9a4e00; }
+.badge-cat-groceries       { background: #e8f5e9;                color: #2e7d32; }
+.badge-cat-shopping        { background: #e8f0fe;                color: #1a56db; }
+.badge-cat-travel          { background: #e0f2fe;                color: #0369a1; }
+.badge-cat-bars-and-nightlife { background: #f3eefa;             color: #5b21b6; }
+.badge-cat-entertainment   { background: #fce8f0;                color: #9d174d; }
+.badge-cat-transportation  { background: #fefce8;                color: #854d0e; }
+.badge-cat-gym             { background: #e8eaf6;                color: #283593; }
+.badge-cat-personal-care   { background: #f0e6ff;                color: #6d28d9; }
+.badge-cat-health          { background: #e0f7fa;                color: #006064; }
+.badge-cat-internal-transfer { background: #e6f7f7;              color: #0e6969; }
+.badge-cat-other           { background: var(--color-neutral-200); color: var(--color-neutral-700); }
+
 /* ── Cards ── */
 .card {
   background: white;

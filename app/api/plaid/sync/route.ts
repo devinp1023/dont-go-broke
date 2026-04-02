@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { plaidClient } from '@/lib/plaid'
 
+// Map Plaid's personal_finance_category.primary to our custom categories
+const PLAID_TO_CATEGORY: Record<string, string> = {
+  INCOME: 'INCOME',
+  TRANSFER_IN: 'INTERNAL_TRANSFER',
+  TRANSFER_OUT: 'INTERNAL_TRANSFER',
+  LOAN_PAYMENTS: 'OTHER',
+  BANK_FEES: 'OTHER',
+  ENTERTAINMENT: 'ENTERTAINMENT',
+  FOOD_AND_DRINK: 'RESTAURANTS',
+  GENERAL_MERCHANDISE: 'SHOPPING',
+  HOME_IMPROVEMENT: 'SHOPPING',
+  MEDICAL: 'HEALTH',
+  PERSONAL_CARE: 'PERSONAL_CARE',
+  GENERAL_SERVICES: 'OTHER',
+  GOVERNMENT_AND_NON_PROFIT: 'OTHER',
+  TRANSPORTATION: 'TRANSPORTATION',
+  TRAVEL: 'TRAVEL',
+  RENT_AND_UTILITIES: 'RENT',
+}
+
+function mapPlaidCategory(plaidPrimary: string | undefined): string {
+  if (!plaidPrimary) return 'OTHER'
+  return PLAID_TO_CATEGORY[plaidPrimary] || 'OTHER'
+}
+
 export async function POST() {
   try {
     const supabase = await createClient()
@@ -59,22 +84,35 @@ export async function POST() {
         end_date: now.toISOString().split('T')[0],
       })
 
+      // Find which transactions have been manually categorized
+      const plaidTxnIds = transactionsResponse.data.transactions.map((t) => t.transaction_id)
+      const { data: manualTxns } = await supabase
+        .from('transactions')
+        .select('plaid_transaction_id')
+        .in('plaid_transaction_id', plaidTxnIds)
+        .eq('category_manual', true)
+
+      const manualSet = new Set(manualTxns?.map((t) => t.plaid_transaction_id) || [])
+
       for (const txn of transactionsResponse.data.transactions) {
-        await supabase.from('transactions').upsert(
-          {
-            user_id: user.id,
-            account_id: accountMap.get(txn.account_id),
-            plaid_transaction_id: txn.transaction_id,
-            amount: txn.amount,
-            date: txn.date,
-            name: txn.name,
-            merchant_name: txn.merchant_name,
-            category: txn.personal_finance_category?.primary || txn.category?.[0],
-            plaid_category: txn.personal_finance_category,
-            pending: txn.pending,
-          },
-          { onConflict: 'plaid_transaction_id' }
-        )
+        const base = {
+          user_id: user.id,
+          account_id: accountMap.get(txn.account_id),
+          plaid_transaction_id: txn.transaction_id,
+          amount: txn.amount,
+          date: txn.date,
+          name: txn.name,
+          merchant_name: txn.merchant_name,
+          plaid_category: txn.personal_finance_category,
+          pending: txn.pending,
+        }
+
+        // Skip overwriting category if user manually set it
+        const data = manualSet.has(txn.transaction_id)
+          ? base
+          : { ...base, category: mapPlaidCategory(txn.personal_finance_category?.primary) }
+
+        await supabase.from('transactions').upsert(data, { onConflict: 'plaid_transaction_id' })
       }
 
       totalSynced += transactionsResponse.data.transactions.length
