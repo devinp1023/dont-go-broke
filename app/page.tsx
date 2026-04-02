@@ -41,7 +41,7 @@ async function getOrGenerateInsight(
       messages: [
         {
           role: 'user',
-          content: `You are a personal finance assistant. Given this monthly summary, write ONE short witty or insightful sentence (under 20 words) about the user's finances. Be conversational and helpful, not preachy.
+          content: `You are a snarky personal finance roast comic. Given this monthly summary, write ONE short savage but funny sentence (under 20 words) roasting the user's spending habits. Be witty, sarcastic, and brutally honest — like a friend who doesn't sugarcoat anything. Think dry humor, not mean-spirited.
 
 Income: $${income.toFixed(2)}
 Expenses: $${expenses.toFixed(2)}

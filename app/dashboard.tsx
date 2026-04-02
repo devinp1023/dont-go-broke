@@ -14,8 +14,17 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-hero font-display text-neutral-900 mb-2">Hello, Devin!</h1>
-      {insight && <p className="text-body text-neutral-500 mb-8">{insight}</p>}
+      <h1 className="text-hero font-display text-neutral-900 mb-6">Hello, Devin!</h1>
+      {insight && (
+        <div className="card mb-8">
+          <div className="stat-label mb-3" style={{ color: 'var(--color-neutral-800)' }}>Here&apos;s what Claude says about your financial situation today</div>
+          <p className="text-body text-neutral-500 italic">
+            <span className="font-display not-italic" style={{ color: '#E3722B', fontSize: '32px', lineHeight: 0, verticalAlign: 'middle', marginRight: '4px' }}>&ldquo;</span>
+            {insight}
+            <span className="font-display not-italic" style={{ color: '#E3722B', fontSize: '32px', lineHeight: 0, verticalAlign: 'middle', marginLeft: '4px' }}>&rdquo;</span>
+          </p>
+        </div>
+      )}
       {!insight && <div className="mb-8" />}
 
       <div className="card mb-8">
@@ -44,7 +53,7 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
         </div>
       </div>
 
-      <SpendBreakdown data={categoryBreakdown} />
+      <SpendBreakdown data={categoryBreakdown} monthLabel={monthLabel} />
     </div>
   )
 }

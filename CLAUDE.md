@@ -7,6 +7,8 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - Next.js 16 (App Router, TypeScript, Tailwind CSS v4)
 - Supabase (Postgres + Auth + Row Level Security)
 - Plaid (bank sync — currently Sandbox mode)
+- Anthropic SDK (`@anthropic-ai/sdk`) for AI-generated financial insights (Claude Haiku)
+- Recharts for data visualization (pie charts)
 - `@supabase/ssr` for auth (not the deprecated `auth-helpers-nextjs`)
 
 ## Key Architecture Decisions
@@ -46,18 +48,22 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `lib/supabase/server.ts` — Server Supabase client (async, uses cookies)
 - `lib/supabase/proxy.ts` — Supabase client for proxy/middleware context
 - `lib/plaid.ts` — Server-only Plaid client singleton
+- `lib/anthropic.ts` — Server-only Anthropic client factory (reads API key at call time due to Turbopack env quirk)
 - `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
 - `app/globals.css` — Design system tokens + component classes
 - `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages)
 - `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Accounts, Net Worth)
+- `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
+- `components/TransactionList.tsx` — Transaction row list with design system styling
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
+- `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
 
 ## Pages
 
-- `/` — Home (dashboard with transactions, sync, bank connect)
-- `/transactions` — Coming soon
-- `/accounts` — Coming soon
+- `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
+- `/transactions` — Transaction list with sync button
+- `/accounts` — Sync and Connect Bank buttons (coming soon)
 - `/net-worth` — Coming soon
 - `/login` — Magic link auth (no sidebar)
 
@@ -68,7 +74,7 @@ Security is the #1 priority in every change to this codebase. The GitHub repo is
 ### Non-Negotiable Rules
 
 - **Secrets**: All secrets live in `.env.local` (git-ignored). `.env.example` has placeholders only. Before every commit, verify no real keys, tokens, or credentials are included.
-- **Server-only**: Plaid access tokens, `SUPABASE_SERVICE_ROLE_KEY`, and `PLAID_SECRET` must NEVER be exposed to the client. Any file using these must import `server-only` or be an API route.
+- **Server-only**: Plaid access tokens, `SUPABASE_SERVICE_ROLE_KEY`, `PLAID_SECRET`, and `ANTHROPIC_API_KEY` must NEVER be exposed to the client. Any file using these must import `server-only` or be an API route.
 - **RLS always on**: Every new table must have Row Level Security enabled with `auth.uid() = user_id` policies before any data is written. No exceptions.
 - **Session verification**: Every API route must verify the user session before executing. Never trust client-side data without server-side validation.
 - **No `NEXT_PUBLIC_` on secrets**: Only `SUPABASE_URL` and `SUPABASE_ANON_KEY` may have the `NEXT_PUBLIC_` prefix. Everything else is server-only.

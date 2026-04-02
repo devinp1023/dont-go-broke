@@ -31,11 +31,11 @@ function prettifyCategory(raw: string) {
     .replace(/^\w/, (c) => c.toUpperCase())
 }
 
-export default function SpendBreakdown({ data }: { data: CategoryData[] }) {
+export default function SpendBreakdown({ data, monthLabel }: { data: CategoryData[]; monthLabel?: string }) {
   if (data.length === 0) {
     return (
       <div className="card">
-        <div className="stat-label mb-4">Spend Breakdown</div>
+        <div className="stat-label mb-4">{monthLabel ? `${monthLabel} Spend Breakdown` : 'Spend Breakdown'}</div>
         <div className="empty-state">
           <div className="empty-icon">📊</div>
           <div className="empty-title">No spending data</div>
@@ -50,7 +50,7 @@ export default function SpendBreakdown({ data }: { data: CategoryData[] }) {
 
   return (
     <div className="card">
-      <div className="stat-label mb-4">Spend Breakdown</div>
+      <div className="stat-label mb-4">{monthLabel ? `${monthLabel} Spend Breakdown` : 'Spend Breakdown'}</div>
 
       <div className="flex items-center gap-8">
         <div style={{ width: 200, height: 200, flexShrink: 0 }}>
