@@ -6,7 +6,7 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 
 - Next.js 16 (App Router, TypeScript, Tailwind CSS v4)
 - Supabase (Postgres + Auth + Row Level Security)
-- Plaid (bank sync — currently Sandbox mode)
+- Plaid (bank sync — Sandbox for testing, Development for real banks, both free)
 - Anthropic SDK (`@anthropic-ai/sdk`) for AI-generated financial insights (Claude Haiku)
 - Recharts for data visualization (pie charts)
 - `@supabase/ssr` for auth (not the deprecated `auth-helpers-nextjs`)
@@ -49,7 +49,7 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `lib/supabase/proxy.ts` — Supabase client for proxy/middleware context
 - `lib/plaid.ts` — Server-only Plaid client singleton
 - `lib/anthropic.ts` — Server-only Anthropic client factory (reads API key at call time due to Turbopack env quirk)
-- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (maps Plaid categories to custom categories)
+- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (fetches up to 2 years of history, maps Plaid categories to custom categories, respects manual overrides)
 - `app/api/transactions/update-category/` — POST endpoint for manual category overrides
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
 - `app/globals.css` — Design system tokens + component classes
@@ -64,7 +64,7 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
-- `/transactions` — Transaction list grouped by day, auto-syncs on load, clickable category tags for manual override
+- `/transactions` — Transaction list grouped by day, month pagination with fixed arrow nav, auto-syncs on load, clickable category tags for manual override
 - `/accounts` — Sync and Connect Bank buttons (coming soon)
 - `/net-worth` — Coming soon
 - `/login` — Magic link auth (no sidebar)
