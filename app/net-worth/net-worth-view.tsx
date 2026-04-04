@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import InstitutionLogo from '@/components/InstitutionLogo'
 
 interface AccountSummary {
@@ -177,7 +177,13 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
         ) : (
           <div className="chart-container" style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={snapshots} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+              <AreaChart data={snapshots} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-sg-400)" stopOpacity={0.2} />
+                    <stop offset="100%" stopColor="var(--color-sg-400)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-neutral-100)" />
                 <XAxis
                   dataKey="date"
@@ -187,31 +193,48 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
                   tickLine={false}
                 />
                 <YAxis
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => {
+                    const abs = Math.abs(v)
+                    const formatted = abs >= 1000 ? `$${(abs / 1000).toFixed(0)}k` : `$${abs}`
+                    return v < 0 ? `-${formatted}` : formatted
+                  }}
                   tick={{ fontSize: 12, fill: 'var(--color-neutral-500)' }}
                   axisLine={false}
                   tickLine={false}
-                  width={60}
+                  width={55}
                 />
                 <Tooltip
-                  labelFormatter={(label) => formatTooltipDate(label as string)}
-                  formatter={(value) => [formatCurrency(Number(value)), 'Net Worth']}
-                  contentStyle={{
-                    borderRadius: '10px',
-                    border: '0.5px solid var(--color-neutral-200)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                    fontSize: '14px',
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null
+                    return (
+                      <div style={{
+                        background: 'white',
+                        border: '1px solid var(--color-neutral-200)',
+                        borderRadius: 8,
+                        padding: '8px 12px',
+                        fontFamily: 'var(--font-dm-sans)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-neutral-500)', marginBottom: 2 }}>
+                          {formatTooltipDate(label as string)}
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-neutral-900)' }}>
+                          {formatCurrency(Number(payload[0].value))}
+                        </div>
+                      </div>
+                    )
                   }}
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="netWorth"
                   stroke="var(--color-sg-500)"
                   strokeWidth={2.5}
+                  fill="url(#netWorthGradient)"
                   dot={false}
                   activeDot={{ r: 4 }}
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         )}

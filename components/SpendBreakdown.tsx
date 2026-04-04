@@ -106,11 +106,11 @@ export default function SpendBreakdown({ data, monthLabel }: { data: CategoryDat
                     className="rounded-full flex-shrink-0"
                     style={{ width: 10, height: 10, background: getCategoryColor(item.category) }}
                   />
-                  <span className="text-label text-neutral-700 truncate">{pretty.category}</span>
+                  <span className="text-label text-neutral-700">{pretty.category}</span>
                 </div>
-                <span className="flex-shrink-0 text-right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <span className="flex-shrink-0 text-right tabular-nums">
                   <span className="text-label font-medium text-neutral-800">{formatDollar(pretty.amount)}</span>
-                  <span className="text-label text-neutral-400" style={{ display: 'inline-block', width: '70px', textAlign: 'right', marginLeft: '12px' }}>({percent}%)</span>
+                  <span className="text-label text-neutral-400 inline-block w-[60px] text-right ml-2">({percent}%)</span>
                 </span>
               </div>
             )

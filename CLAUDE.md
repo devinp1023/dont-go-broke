@@ -10,7 +10,7 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - Supabase (Postgres + Auth + Row Level Security)
 - Plaid (bank sync — Sandbox for testing, Development for real banks, both free)
 - Anthropic SDK (`@anthropic-ai/sdk`) for AI-generated financial insights (Claude Haiku)
-- Recharts for data visualization (pie charts, line charts)
+- Recharts for data visualization (pie charts, area charts, bar charts)
 - `@supabase/ssr` for auth (not the deprecated `auth-helpers-nextjs`)
 
 ## Key Architecture Decisions
@@ -36,7 +36,9 @@ All styling goes through the design system. No hardcoded fonts, colors, or sizes
 - **Shadows**: `shadow-card`, `shadow-elevated`, `shadow-modal`
 
 ### Component Classes (in globals.css)
-Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`), Mobile layout (`.mobile-header`, `.sidebar-overlay`, `.sidebar-close`, `.spend-breakdown-layout`, `.spend-chart-wrap`, `.chart-container`, `.category-dropdown`), Collapse (`.collapse-section`, `.collapse-section.collapsed`, `.collapse-inner`)
+Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, SpendBreakdown layout (`.spend-breakdown-layout`, `.spend-chart-wrap`, `.chart-container`, `.category-dropdown`), Collapse (`.collapse-section`, `.collapse-section.collapsed`, `.collapse-inner`)
+
+**Note:** Sidebar and mobile layout classes (`.sidebar`, `.nav-link`, `.mobile-header`, `.sidebar-overlay`, `.sidebar-close`, `.main-content`) have been removed from globals.css — these components now use Tailwind utility classes directly.
 
 ### Rules
 - **No hardcoded styles**: All colors, fonts, and sizes must use design system tokens or component classes
@@ -68,8 +70,8 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `app/*/loading.tsx` — Per-route loading skeletons matching each page layout
 - `app/api/insights/refresh/` — POST endpoint to delete today's cached insight (forces regeneration on next page load)
 - `app/api/chat/` — POST endpoint for AI chatbot. Streams responses via SSE using Claude Haiku. Fetches accounts, transactions (90 days), net worth snapshots, and investment holdings as context. Deduplicates holdings and groups by account.
-- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle; includes ChatWidget)
-- `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Net Worth, Account Management). Slide-out drawer on mobile, fixed on desktop
+- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle; includes ChatWidget). Uses Tailwind utilities (no custom CSS classes). Mobile header uses deep sea green (`bg-sg-900`) to match sidebar.
+- `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Net Worth, Account Management). Slide-out drawer on mobile, fixed on desktop. Uses Tailwind utilities (no custom CSS classes). Deep sea green background (`bg-sg-900`), active nav items use `bg-sg-700 text-white` pill.
 - `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
 - `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
 - `components/PlaidLinkButton.tsx` — Plaid Link integration button, passes institution_id for logo fetching
@@ -86,10 +88,10 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 
 ## Pages
 
-- `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
+- `/` — Home (AI insight card with `card-tinted` style and sparkle icon, income vs expense grouped bar chart via Recharts BarChart, spend breakdown pie chart)
 - `/transactions` — Transaction list grouped by day, inline month pagination arrows with slide animation, auto-syncs on load, clickable category tags for manual override with animated dropdown. Sync and category errors show toasts; category changes roll back on failure.
-- `/accounts` — Account management: connected institutions with logos, account count, disconnect, sync. Refreshes immediately after new institution connected. Sync and disconnect errors show toasts.
-- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots). Account breakdown grouped by type in animated collapsible sections (CSS grid trick) with institution logos, balance, and change % (or utilization % for credit cards). Investment/brokerage accounts are clickable and open a slide-up sheet showing account detail, mini chart, and individual holdings (ticker, name, shares, value, gain/loss). Snapshots recorded on each Plaid sync, one per day (upserted).
+- `/accounts` — Account management: connected institutions with logos, account/institution count summary pills, neutral-styled disconnect buttons, sync. Refreshes immediately after new institution connected. Sync and disconnect errors show toasts.
+- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, area chart of net worth over time with gradient fill (from daily snapshots). Account breakdown grouped by type in animated collapsible sections (CSS grid trick) with institution logos, balance, and change % (or utilization % for credit cards). Investment/brokerage accounts are clickable and open a slide-up sheet showing account detail, mini chart, and individual holdings (ticker, name, shares, value, gain/loss). Snapshots recorded on each Plaid sync, one per day (upserted).
 - `/login` — Magic link auth (no sidebar)
 
 ## Categories

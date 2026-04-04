@@ -81,9 +81,20 @@ export default function AccountsView({ institutions }: { institutions: Instituti
         </div>
       ) : (
         <>
-          <div className="text-label text-neutral-500 mb-4">
-            {institutions.length} institution{institutions.length !== 1 ? 's' : ''} connected
-          </div>
+          {(() => {
+            const totalAccounts = institutions.reduce((sum, inst) => sum + inst.accountCount, 0)
+            return (
+              <div className="flex items-center gap-2 mb-6 flex-wrap">
+                <span className="text-[14px] font-medium px-3 py-1 rounded-full" style={{ background: 'var(--color-sg-50)', color: 'var(--color-sg-700)' }}>
+                  {totalAccounts} account{totalAccounts !== 1 ? 's' : ''}
+                </span>
+                <span className="text-neutral-300">&middot;</span>
+                <span className="text-[14px] font-medium px-3 py-1 rounded-full" style={{ background: 'var(--color-sg-50)', color: 'var(--color-sg-700)' }}>
+                  {institutions.length} institution{institutions.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            )
+          })()}
 
           {institutions.map((inst) => (
             <div key={inst.id} className="card mb-4 p-5">
@@ -100,7 +111,14 @@ export default function AccountsView({ institutions }: { institutions: Instituti
                 <button
                   onClick={() => handleDisconnect(inst.id, inst.name)}
                   disabled={disconnecting === inst.id}
-                  className="btn btn-danger btn-sm disabled:opacity-50"
+                  className="btn btn-sm disabled:opacity-50"
+                  style={{
+                    background: 'white',
+                    color: 'var(--color-neutral-600)',
+                    border: '1px solid var(--color-neutral-300)',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-neutral-100)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
                 >
                   {disconnecting === inst.id ? 'Removing...' : 'Disconnect'}
                 </button>

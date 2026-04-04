@@ -14,18 +14,38 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
   const pathname = usePathname()
 
   return (
-    <nav className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <button className="sidebar-close" onClick={onClose} aria-label="Close menu">
+    <nav
+      className={`fixed top-0 left-0 w-[220px] h-screen bg-sg-900 py-8 px-5 overflow-y-auto z-[100]
+        -translate-x-full md:translate-x-0 transition-transform duration-[250ms] ease-out
+        max-md:pt-[calc(2rem+env(safe-area-inset-top,0px))]
+        ${isOpen ? 'translate-x-0' : ''}`}
+    >
+      <button
+        className="hidden max-md:flex items-center justify-center bg-transparent border-none text-sg-200 cursor-pointer w-8 h-8 text-[20px] absolute top-4 right-3"
+        onClick={onClose}
+        aria-label="Close menu"
+      >
         &times;
       </button>
-      <div className="sidebar-logo">Don&apos;t Go Broke</div>
 
-      <div className="nav-section mt-8">Menu</div>
+      <div className="font-display text-[23px] text-sg-400 pb-4 mb-6 border-b border-sg-700">
+        Don&apos;t Go Broke
+      </div>
+
+      <div className="text-[15px] font-medium tracking-[0.1em] uppercase text-sg-200 mb-2">
+        Menu
+      </div>
+
       {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className={`nav-link ${pathname === item.href ? 'active' : ''}`}
+          className={`block text-[18px] no-underline py-1.5 px-2 rounded-md transition-colors duration-150 mb-px
+            max-md:py-2.5 max-md:px-3
+            ${pathname === item.href
+              ? 'text-white bg-sg-700'
+              : 'text-sg-100 hover:text-white hover:bg-sg-800'
+            }`}
           onClick={onClose}
         >
           {item.label}
