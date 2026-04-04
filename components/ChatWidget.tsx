@@ -60,11 +60,16 @@ interface Message {
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  function handleClose() {
+    setIsClosing(true)
+  }
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -163,7 +168,15 @@ export default function ChatWidget() {
 
       {/* Chat panel */}
       {isOpen && (
-        <div className="chat-panel">
+        <div
+          className={`chat-panel${isClosing ? ' closing' : ''}`}
+          onAnimationEnd={() => {
+            if (isClosing) {
+              setIsOpen(false)
+              setIsClosing(false)
+            }
+          }}
+        >
           {/* Header */}
           <div className="chat-header">
             <div className="flex items-center gap-2">
@@ -184,7 +197,7 @@ export default function ChatWidget() {
                 </button>
               )}
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="chat-header-btn"
                 aria-label="Close chat"
               >

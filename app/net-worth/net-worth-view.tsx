@@ -248,7 +248,8 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
                 {isAsset ? formatCurrency(groupTotal) : `-${formatCurrency(groupTotal)}`}
               </span>
             </button>
-            {!collapsed.has(group.type) && (
+            <div className={`collapse-section${collapsed.has(group.type) ? ' collapsed' : ''}`}>
+              <div className="collapse-inner">
               <div className="flex flex-col mt-1">
                 {group.accounts.map((acct) => {
                   const prev = acct.prevBalance
@@ -299,7 +300,8 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
                   )
                 })}
               </div>
-            )}
+              </div>
+            </div>
           </div>
         )
       })}

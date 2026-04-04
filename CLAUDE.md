@@ -36,13 +36,16 @@ All styling goes through the design system. No hardcoded fonts, colors, or sizes
 - **Shadows**: `shadow-card`, `shadow-elevated`, `shadow-modal`
 
 ### Component Classes (in globals.css)
-Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`), Mobile layout (`.mobile-header`, `.sidebar-overlay`, `.sidebar-close`, `.spend-breakdown-layout`, `.spend-chart-wrap`, `.chart-container`, `.category-dropdown`)
+Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, `.btn-sm`, `.btn-lg`, `.btn-icon`), Inputs (`.input-field`, `.input-label`), Badges (`.badge`, `.badge-cat-*` for category tags), Cards (`.card`, `.card-elevated`, `.card-tinted`, `.card-dark`), Stat cards, Transaction rows (`.tx-row`, `.tx-amount.debit/.credit`), Progress bars, Tabs, Toggles, Avatars, Dividers, Empty states, Toasts, Sidebar (`.sidebar`, `.nav-link`), Mobile layout (`.mobile-header`, `.sidebar-overlay`, `.sidebar-close`, `.spend-breakdown-layout`, `.spend-chart-wrap`, `.chart-container`, `.category-dropdown`), Collapse (`.collapse-section`, `.collapse-section.collapsed`, `.collapse-inner`)
 
 ### Rules
 - **No hardcoded styles**: All colors, fonts, and sizes must use design system tokens or component classes
 - **Page titles**: Use `text-hero font-display`
 - **Update style-guide.html** when adding new tokens or components
 - **Mobile-first responsive**: All responsive overrides live in a single `@media (max-width: 767px)` block at the bottom of `globals.css`. Breakpoint is 768px (matches Tailwind `md:`)
+- **Animation easing**: Use `ease-out` for enter animations, `ease-in` for exit animations. Keep durations 150-300ms for micro-interactions.
+- **Reduced motion**: `@media (prefers-reduced-motion: reduce)` block at the end of `globals.css` disables all animations/transitions. All new animations are automatically covered.
+- **Accessibility on alerts**: Use `role="alert"` on toast notifications and error boundary content so screen readers announce them.
 
 ## File Structure
 
@@ -58,7 +61,11 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `app/api/accounts/rename/` — POST endpoint to rename an account
 - `app/api/transactions/update-category/` — POST endpoint for manual category overrides
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
-- `app/globals.css` — Design system tokens + component classes
+- `app/globals.css` — Design system tokens + component classes + animations + reduced motion
+- `app/error.tsx` — Root error boundary (client component with retry)
+- `app/loading.tsx` — Root loading skeleton (animate-pulse)
+- `app/*/error.tsx` — Per-route error boundaries (transactions, net-worth, accounts)
+- `app/*/loading.tsx` — Per-route loading skeletons matching each page layout
 - `app/api/insights/refresh/` — POST endpoint to delete today's cached insight (forces regeneration on next page load)
 - `app/api/chat/` — POST endpoint for AI chatbot. Streams responses via SSE using Claude Haiku. Fetches accounts, transactions (90 days), net worth snapshots, and investment holdings as context. Deduplicates holdings and groups by account.
 - `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle; includes ChatWidget)
@@ -67,7 +74,8 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
 - `components/PlaidLinkButton.tsx` — Plaid Link integration button, passes institution_id for logo fetching
 - `components/InstitutionLogo.tsx` — Renders Plaid institution logo (base64) with colored initials fallback
-- `components/ChatWidget.tsx` — Floating chatbot widget (bottom-right). Expandable chat panel with streaming responses, markdown rendering (bold, italic, code, lists), suggested questions, and clear chat. Full-screen on mobile.
+- `components/ChatWidget.tsx` — Floating chatbot widget (bottom-right). Expandable chat panel with streaming responses, markdown rendering (bold, italic, code, lists), suggested questions, and clear chat. Full-screen on mobile. Has enter/exit animations.
+- `components/Toast.tsx` — Toast notification component + `useToast()` hook. Auto-dismisses after 4s. Uses existing `.toast` CSS classes. Add `role="alert"` for accessibility.
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
 - `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
 - `supabase/migrations/003_category_manual.sql` — Adds `category_manual` boolean to transactions
@@ -79,9 +87,9 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
-- `/transactions` — Transaction list grouped by day, inline month pagination arrows, auto-syncs on load, clickable category tags for manual override
-- `/accounts` — Account management: connected institutions with logos, account count, disconnect, sync. Refreshes immediately after new institution connected.
-- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots). Account breakdown grouped by type in collapsible sections with institution logos, balance, and change % (or utilization % for credit cards). Investment/brokerage accounts are clickable and open a slide-up sheet showing account detail, mini chart, and individual holdings (ticker, name, shares, value, gain/loss). Snapshots recorded on each Plaid sync, one per day (upserted).
+- `/transactions` — Transaction list grouped by day, inline month pagination arrows with slide animation, auto-syncs on load, clickable category tags for manual override with animated dropdown. Sync and category errors show toasts; category changes roll back on failure.
+- `/accounts` — Account management: connected institutions with logos, account count, disconnect, sync. Refreshes immediately after new institution connected. Sync and disconnect errors show toasts.
+- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots). Account breakdown grouped by type in animated collapsible sections (CSS grid trick) with institution logos, balance, and change % (or utilization % for credit cards). Investment/brokerage accounts are clickable and open a slide-up sheet showing account detail, mini chart, and individual holdings (ticker, name, shares, value, gain/loss). Snapshots recorded on each Plaid sync, one per day (upserted).
 - `/login` — Magic link auth (no sidebar)
 
 ## Categories

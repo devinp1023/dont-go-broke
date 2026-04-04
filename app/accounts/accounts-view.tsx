@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PlaidLinkButton from '@/components/PlaidLinkButton'
 import InstitutionLogo from '@/components/InstitutionLogo'
+import { useToast } from '@/components/Toast'
 
 interface Institution {
   id: string
@@ -17,12 +18,16 @@ export default function AccountsView({ institutions }: { institutions: Instituti
   const router = useRouter()
   const [syncing, setSyncing] = useState(false)
   const [disconnecting, setDisconnecting] = useState<string | null>(null)
+  const { toastEl, showToast } = useToast()
 
   async function handleSync() {
     setSyncing(true)
     try {
-      await fetch('/api/plaid/sync', { method: 'POST' })
+      const res = await fetch('/api/plaid/sync', { method: 'POST' })
+      if (!res.ok) throw new Error()
       router.refresh()
+    } catch {
+      showToast('Failed to sync accounts')
     } finally {
       setSyncing(false)
     }
@@ -34,12 +39,15 @@ export default function AccountsView({ institutions }: { institutions: Instituti
     }
     setDisconnecting(plaidItemId)
     try {
-      await fetch('/api/accounts/disconnect', {
+      const res = await fetch('/api/accounts/disconnect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plaid_item_id: plaidItemId }),
       })
+      if (!res.ok) throw new Error()
       router.refresh()
+    } catch {
+      showToast('Failed to disconnect institution')
     } finally {
       setDisconnecting(null)
     }
@@ -101,6 +109,7 @@ export default function AccountsView({ institutions }: { institutions: Instituti
           ))}
         </>
       )}
+      {toastEl}
     </div>
   )
 }

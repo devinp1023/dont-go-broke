@@ -80,7 +80,7 @@ function CategoryDropdown({
     <div
       ref={ref}
       className="category-dropdown absolute left-0 top-full mt-1 bg-white border border-neutral-100 rounded-lg shadow-elevated z-50 py-1 max-h-64 overflow-y-auto"
-      style={{ minWidth: 200 }}
+      style={{ minWidth: 200, animation: 'dropdownIn 0.15s ease-out', transformOrigin: 'top left' }}
     >
       {ALL_CATEGORIES.map((cat) => (
         <button

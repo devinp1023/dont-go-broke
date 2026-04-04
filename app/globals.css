@@ -638,7 +638,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: chatSlideUp 0.2s ease;
+  animation: chatSlideUp 0.2s ease-out;
 }
 @keyframes chatSlideUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -889,4 +889,44 @@ body {
 
   /* Kill 300ms tap delay */
   * { touch-action: manipulation; }
+}
+
+/* ── Dropdown enter animation ── */
+@keyframes dropdownIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Collapsible sections (grid trick for smooth height) ── */
+.collapse-section {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease-out, opacity 0.2s ease-out;
+  opacity: 1;
+}
+.collapse-section.collapsed {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.collapse-section > .collapse-inner {
+  overflow: hidden;
+}
+
+/* ── Chat panel exit animation ── */
+@keyframes chatSlideDown {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(12px); }
+}
+.chat-panel.closing {
+  animation: chatSlideDown 0.15s ease-in forwards;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
