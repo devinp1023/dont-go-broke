@@ -121,8 +121,89 @@ export default async function Home() {
     .sort((a, b) => b.amount - a.amount)
 
   let insight = ''
+  let netWorthChange: number | null = null
+  let currentNetWorth: number | null = null
+  let netWorthPrevious: number | null = null
+  let netWorthSparkline: number[] = []
+  let topHolding: { name: string; ticker: string | null; gainPct: number; gainAmount: number } | null = null
+  let worstHolding: { name: string; ticker: string | null; gainPct: number; gainAmount: number } | null = null
+
   if (user) {
     insight = await getOrGenerateInsight(supabase, user.id, income, expenses, categoryBreakdown)
+
+    // Fetch recent net worth snapshots for sparkline
+    const { data: snapshots } = await supabase
+      .from('net_worth_snapshots')
+      .select('net_worth, date')
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+      .limit(60)
+
+    if (snapshots && snapshots.length >= 1) {
+      currentNetWorth = Number(snapshots[0].net_worth)
+
+      // Find snapshot closest to 30 days ago for month-over-month comparison
+      const now = new Date(snapshots[0].date + 'T00:00:00')
+      const thirtyDaysAgo = new Date(now)
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+      let closestIdx = -1
+      let closestDiff = Infinity
+      for (let i = 1; i < snapshots.length; i++) {
+        const d = new Date(snapshots[i].date + 'T00:00:00')
+        const diff = Math.abs(d.getTime() - thirtyDaysAgo.getTime())
+        if (diff < closestDiff) {
+          closestDiff = diff
+          closestIdx = i
+        }
+      }
+
+      if (closestIdx >= 0) {
+        netWorthPrevious = Number(snapshots[closestIdx].net_worth)
+        netWorthChange = currentNetWorth - netWorthPrevious
+      }
+
+      // Sparkline data: oldest to newest (reverse the desc-ordered results), cap at 12
+      netWorthSparkline = snapshots.slice(0, 12).map((s) => Number(s.net_worth)).reverse()
+    }
+
+    // Fetch holdings to find best performer (stocks/ETFs only, skip derivatives and cash)
+    const { data: holdings } = await supabase
+      .from('holdings')
+      .select('institution_value, cost_basis, quantity, securities(name, ticker_symbol, type, is_cash_equivalent)')
+      .eq('user_id', user.id)
+
+    if (holdings && holdings.length > 0) {
+      // Security types to skip (derivatives, cash, etc.)
+      const SKIP_TYPES = new Set(['derivative', 'option', 'cash', 'fixed income', 'mutual fund'])
+      let bestGainPct = -Infinity
+      let worstGainPct = Infinity
+      for (const h of holdings) {
+        const sec = h.securities as unknown as { name: string | null; ticker_symbol: string | null; type: string | null; is_cash_equivalent: boolean | null }
+        if (sec?.is_cash_equivalent) continue
+        if (sec?.type && SKIP_TYPES.has(sec.type.toLowerCase())) continue
+        if (sec?.ticker_symbol && sec.ticker_symbol.length > 6) continue
+        if (!h.institution_value || h.institution_value <= 0) continue
+        if (!h.quantity || h.quantity <= 0) continue
+        const costBasis = h.cost_basis
+        if (!costBasis || costBasis <= 0) continue
+        const gainPct = ((h.institution_value - costBasis) / costBasis) * 100
+        const holdingData = {
+          name: sec?.name || 'Unknown',
+          ticker: sec?.ticker_symbol || null,
+          gainPct,
+          gainAmount: h.institution_value - costBasis,
+        }
+        if (gainPct > bestGainPct) {
+          bestGainPct = gainPct
+          topHolding = holdingData
+        }
+        if (gainPct < worstGainPct) {
+          worstGainPct = gainPct
+          worstHolding = holdingData
+        }
+      }
+    }
   }
 
   return (
@@ -132,6 +213,12 @@ export default async function Home() {
       monthLabel={monthLabel}
       categoryBreakdown={categoryBreakdown}
       insight={insight}
+      currentNetWorth={currentNetWorth}
+      netWorthChange={netWorthChange}
+      netWorthPrevious={netWorthPrevious}
+      netWorthSparkline={netWorthSparkline}
+      topHolding={topHolding}
+      worstHolding={worstHolding}
     />
   )
 }
