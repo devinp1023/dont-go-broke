@@ -10,7 +10,7 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - Supabase (Postgres + Auth + Row Level Security)
 - Plaid (bank sync — Sandbox for testing, Development for real banks, both free)
 - Anthropic SDK (`@anthropic-ai/sdk`) for AI-generated financial insights (Claude Haiku)
-- Recharts for data visualization (pie charts, area charts, bar charts)
+- Recharts for data visualization (pie/donut charts, area charts)
 - `@supabase/ssr` for auth (not the deprecated `auth-helpers-nextjs`)
 
 ## Key Architecture Decisions
@@ -72,7 +72,7 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `app/api/chat/` — POST endpoint for AI chatbot. Streams responses via SSE using Claude Haiku. Fetches accounts, transactions (90 days), net worth snapshots, and investment holdings as context. Deduplicates holdings and groups by account.
 - `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle; includes ChatWidget). Uses Tailwind utilities (no custom CSS classes). Mobile header uses deep sea green (`bg-sg-900`) to match sidebar.
 - `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Net Worth, Account Management). Slide-out drawer on mobile, fixed on desktop. Uses Tailwind utilities (no custom CSS classes). Deep sea green background (`bg-sg-900`), active nav items use `bg-sg-700 text-white` pill.
-- `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
+- `components/SpendBreakdown.tsx` — Donut chart of expenses by category (recharts). Filters out internal transfers (shown as excluded total). Groups small categories (<2%) into "Other" and caps at 6 slices max. Shows total in donut center.
 - `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
 - `components/PlaidLinkButton.tsx` — Plaid Link integration button, passes institution_id for logo fetching
 - `components/InstitutionLogo.tsx` — Renders Plaid institution logo (base64) with colored initials fallback
@@ -88,7 +88,7 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 
 ## Pages
 
-- `/` — Home (AI insight card with `card-tinted` style and sparkle icon, income vs expense grouped bar chart via Recharts BarChart, spend breakdown pie chart)
+- `/` — Home (AI insight card with Claude orange left-accent bar and "Claude's take" eyebrow label, income vs expenses horizontal bars (independently scaled, no Recharts) with net summary and savings rate badge, spend breakdown donut chart)
 - `/transactions` — Transaction list grouped by day, inline month pagination arrows with slide animation, auto-syncs on load, clickable category tags for manual override with animated dropdown. Sync and category errors show toasts; category changes roll back on failure.
 - `/accounts` — Account management: connected institutions with logos, account/institution count summary pills, neutral-styled disconnect buttons, sync. Refreshes immediately after new institution connected. Sync and disconnect errors show toasts.
 - `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, area chart of net worth over time with gradient fill (from daily snapshots). Account breakdown grouped by type in animated collapsible sections (CSS grid trick) with institution logos, balance, and change % (or utilization % for credit cards). Investment/brokerage accounts are clickable and open a slide-up sheet showing account detail, mini chart, and individual holdings (ticker, name, shares, value, gain/loss). Snapshots recorded on each Plaid sync, one per day (upserted).
