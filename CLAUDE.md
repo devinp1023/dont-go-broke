@@ -60,12 +60,14 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `app/auth/callback/route.ts` — Magic link callback (exchanges code for session)
 - `app/globals.css` — Design system tokens + component classes
 - `app/api/insights/refresh/` — POST endpoint to delete today's cached insight (forces regeneration on next page load)
-- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle)
+- `app/api/chat/` — POST endpoint for AI chatbot. Streams responses via SSE using Claude Haiku. Fetches accounts, transactions (90 days), net worth snapshots, and investment holdings as context. Deduplicates holdings and groups by account.
+- `components/AppShell.tsx` — Layout wrapper (sidebar + main content, hidden on auth pages; mobile hamburger menu + drawer toggle; includes ChatWidget)
 - `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Net Worth, Account Management). Slide-out drawer on mobile, fixed on desktop
 - `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
 - `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
 - `components/PlaidLinkButton.tsx` — Plaid Link integration button, passes institution_id for logo fetching
 - `components/InstitutionLogo.tsx` — Renders Plaid institution logo (base64) with colored initials fallback
+- `components/ChatWidget.tsx` — Floating chatbot widget (bottom-right). Expandable chat panel with streaming responses, markdown rendering (bold, italic, code, lists), suggested questions, and clear chat. Full-screen on mobile.
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
 - `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
 - `supabase/migrations/003_category_manual.sql` — Adds `category_manual` boolean to transactions

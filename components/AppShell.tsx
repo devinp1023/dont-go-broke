@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Sidebar from './Sidebar'
+import ChatWidget from './ChatWidget'
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -36,6 +37,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className="main-content">{children}</main>
+      <ChatWidget />
     </>
   )
 }
