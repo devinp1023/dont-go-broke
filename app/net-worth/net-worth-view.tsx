@@ -276,8 +276,8 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
                           <span className="text-neutral-400" style={{ fontSize: 13 }}>{acct.institution}</span>
                         )}
                       </div>
-                      <div className="flex items-center shrink-0 ml-auto">
-                        <span className={`font-semibold text-right tabular-nums ${isAsset ? 'text-sg-400' : 'text-danger-400'}`} style={{ fontSize: 15, width: 100 }}>
+                      <div className="flex items-center shrink-0 ml-auto gap-3">
+                        <span className={`font-semibold text-right tabular-nums ${isAsset ? 'text-sg-400' : 'text-danger-400'}`} style={{ fontSize: 15, width: 110 }}>
                           {isAsset ? formatCurrency(acct.balance) : `-${formatCurrency(acct.balance)}`}
                         </span>
                         <span className={`font-semibold text-right tabular-nums ${utilPct !== null ? (utilPct > 30 ? 'text-danger-400' : 'text-sg-400') : changePct !== null && changePct >= 0 ? 'text-sg-400' : changePct !== null ? 'text-danger-400' : 'text-neutral-300'}`} style={{ fontSize: 14, width: 56 }}>
@@ -288,11 +288,13 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
                               : '--'}
                         </span>
                       </div>
-                      {isInvestment && (
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                          <path d="M6 4L10 8L6 12" stroke="var(--color-neutral-300)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
+                      <div style={{ width: 16, flexShrink: 0 }}>
+                        {isInvestment && (
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M6 4L10 8L6 12" stroke="var(--color-neutral-300)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </div>
                     </div>
                   )
                 })}

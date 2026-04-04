@@ -18,7 +18,7 @@ Personal finance PWA (single-user, public repo). Replicates core Copilot Money f
 - **Next.js 16 breaking changes**: `middleware.ts` is now `proxy.ts`. `cookies()`, `headers()`, `params` are async and must be awaited.
 - **Auth**: Supabase magic link (passwordless). Session managed via cookies in `proxy.ts`.
 - **Plaid**: All Plaid API calls are server-side only (`lib/plaid.ts` uses `server-only`). Access tokens are never returned to the client.
-- **RLS**: Every table has Row Level Security with `auth.uid() = user_id` policy. All tables have a `user_id` column.
+- **RLS**: Every table has Row Level Security. Most use `auth.uid() = user_id` policy. Exception: `securities` table is shared reference data with authenticated-user read/write policies (no `user_id` column).
 
 ## Design System
 
@@ -64,18 +64,22 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `components/Sidebar.tsx` — Navigation sidebar (Home, Transactions, Net Worth, Account Management). Slide-out drawer on mobile, fixed on desktop
 - `components/SpendBreakdown.tsx` — Pie chart of expenses by category (recharts)
 - `components/TransactionList.tsx` — Transaction list grouped by day, with colored category tags and inline category override dropdown
+- `components/PlaidLinkButton.tsx` — Plaid Link integration button, passes institution_id for logo fetching
+- `components/InstitutionLogo.tsx` — Renders Plaid institution logo (base64) with colored initials fallback
 - `supabase/migrations/001_initial.sql` — Schema: plaid_items, accounts, transactions
 - `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
 - `supabase/migrations/003_category_manual.sql` — Adds `category_manual` boolean to transactions
 - `supabase/migrations/004_net_worth_snapshots.sql` — Schema: net_worth_snapshots (daily snapshots with assets, liabilities, net worth, account breakdown JSONB)
 - `supabase/migrations/005_investment_holdings.sql` — Schema: securities (shared reference data), holdings (per-user investment positions)
+- `supabase/migrations/006_institution_logos.sql` — Adds institution_id and institution_logo to plaid_items
+- `supabase/migrations/007_credit_limit.sql` — Adds credit_limit to accounts
 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
 - `/transactions` — Transaction list grouped by day, inline month pagination arrows, auto-syncs on load, clickable category tags for manual override
-- `/accounts` — Account management: connected institutions with account count, disconnect, sync. No individual account details (those live on Net Worth page).
-- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots), account breakdown grouped by type with institution names (depository, investment, credit, loan). Investment/brokerage accounts show individual holdings with ticker, name, quantity, price, value, and gain/loss. Snapshots recorded on each Plaid sync, one per day (upserted).
+- `/accounts` — Account management: connected institutions with logos, account count, disconnect, sync. Refreshes immediately after new institution connected.
+- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots). Account breakdown grouped by type in collapsible sections with institution logos, balance, and change % (or utilization % for credit cards). Investment/brokerage accounts are clickable and open a slide-up sheet showing account detail, mini chart, and individual holdings (ticker, name, shares, value, gain/loss). Snapshots recorded on each Plaid sync, one per day (upserted).
 - `/login` — Magic link auth (no sidebar)
 
 ## Categories
