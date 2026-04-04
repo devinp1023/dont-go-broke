@@ -168,7 +168,7 @@ export default function ChatWidget() {
           <div className="chat-header">
             <div className="flex items-center gap-2">
               <span style={{ fontSize: 18 }}>💬</span>
-              <span className="font-display text-neutral-900" style={{ fontSize: 16 }}>Broke Bot</span>
+              <span className="font-body font-semibold text-neutral-900" style={{ fontSize: 16 }}>CashGPT</span>
             </div>
             <div className="flex items-center gap-1">
               {messages.length > 0 && (
