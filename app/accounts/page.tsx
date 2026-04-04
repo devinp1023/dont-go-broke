@@ -12,7 +12,7 @@ export default async function AccountsPage() {
   // Fetch plaid items (institutions)
   const { data: plaidItems } = await supabase
     .from('plaid_items')
-    .select('id, institution_name, created_at')
+    .select('id, institution_name, institution_logo, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
 
@@ -30,6 +30,7 @@ export default async function AccountsPage() {
   const institutions = (plaidItems || []).map((item) => ({
     id: item.id,
     name: item.institution_name,
+    logo: item.institution_logo ?? null,
     connectedAt: item.created_at,
     accountCount: accountCountMap.get(item.id) || 0,
   }))

@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PlaidLinkButton from '@/components/PlaidLinkButton'
+import InstitutionLogo from '@/components/InstitutionLogo'
 
 interface Institution {
   id: string
   name: string
+  logo: string | null
   connectedAt: string
   accountCount: number
 }
@@ -55,7 +57,7 @@ export default function AccountsView({ institutions }: { institutions: Instituti
           >
             {syncing ? 'Syncing...' : 'Sync'}
           </button>
-          <PlaidLinkButton onSuccess={async () => { await handleSync() }} />
+          <PlaidLinkButton onSuccess={async () => { router.refresh(); await handleSync() }} />
         </div>
       </div>
 
@@ -78,10 +80,13 @@ export default function AccountsView({ institutions }: { institutions: Instituti
           {institutions.map((inst) => (
             <div key={inst.id} className="card mb-4 p-5">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex items-center gap-4">
+                  <InstitutionLogo name={inst.name} logo={inst.logo} size={40} />
+                  <div>
                   <h2 className="text-heading font-display text-neutral-900">{inst.name}</h2>
                   <div className="text-eyebrow text-neutral-500 mt-1">
                     {inst.accountCount} account{inst.accountCount !== 1 ? 's' : ''} &middot; Connected {new Date(inst.connectedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
                   </div>
                 </div>
                 <button

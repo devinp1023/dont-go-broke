@@ -16,13 +16,14 @@ export default function PlaidLinkButton({ onSuccess }: { onSuccess: () => void }
   }, [])
 
   const handleSuccess = useCallback(
-    async (publicToken: string, metadata: { institution: { name: string } | null }) => {
+    async (publicToken: string, metadata: { institution: { name: string; institution_id: string } | null }) => {
       await fetch('/api/plaid/exchange-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           public_token: publicToken,
           institution_name: metadata.institution?.name,
+          institution_id: metadata.institution?.institution_id,
         }),
       })
       onSuccess()

@@ -2,6 +2,8 @@
 
 Personal finance PWA (single-user, public repo). Replicates core Copilot Money functionality.
 
+**IMPORTANT: Do NOT use preview tools to verify changes.** The app requires authentication, so preview screenshots will always show the login page. Skip the verification workflow entirely.
+
 ## Tech Stack
 
 - Next.js 16 (App Router, TypeScript, Tailwind CSS v4)
@@ -49,8 +51,9 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `lib/supabase/server.ts` — Server Supabase client (async, uses cookies)
 - `lib/supabase/proxy.ts` — Supabase client for proxy/middleware context
 - `lib/plaid.ts` — Server-only Plaid client singleton
+- `lib/plaid-holdings.ts` — Server-only helper for syncing investment holdings from Plaid
 - `lib/anthropic.ts` — Server-only Anthropic client factory (reads API key at call time due to Turbopack env quirk)
-- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (fetches up to 2 years of history, maps Plaid categories to custom categories, respects manual overrides, records daily net worth snapshots)
+- `app/api/plaid/` — Three routes: create-link-token, exchange-token, sync (fetches up to 2 years of history, maps Plaid categories to custom categories, respects manual overrides, records daily net worth snapshots, syncs investment holdings)
 - `app/api/accounts/disconnect/` — POST endpoint to disconnect an institution (cascades to accounts + transactions)
 - `app/api/accounts/rename/` — POST endpoint to rename an account
 - `app/api/transactions/update-category/` — POST endpoint for manual category overrides
@@ -65,13 +68,14 @@ Buttons (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`, 
 - `supabase/migrations/002_insights.sql` — Schema: insights (daily AI-generated financial insights, cached per user per day)
 - `supabase/migrations/003_category_manual.sql` — Adds `category_manual` boolean to transactions
 - `supabase/migrations/004_net_worth_snapshots.sql` — Schema: net_worth_snapshots (daily snapshots with assets, liabilities, net worth, account breakdown JSONB)
+- `supabase/migrations/005_investment_holdings.sql` — Schema: securities (shared reference data), holdings (per-user investment positions)
 
 ## Pages
 
 - `/` — Home (AI insight, income vs expense chart, spend breakdown pie chart)
 - `/transactions` — Transaction list grouped by day, inline month pagination arrows, auto-syncs on load, clickable category tags for manual override
 - `/accounts` — Account management: connected institutions with account count, disconnect, sync. No individual account details (those live on Net Worth page).
-- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots), account breakdown grouped by type with institution names (depository, investment, credit, loan). Snapshots recorded on each Plaid sync, one per day (upserted).
+- `/net-worth` — Net worth tracker: total net worth hero, assets vs liabilities stats, line chart of net worth over time (from daily snapshots), account breakdown grouped by type with institution names (depository, investment, credit, loan). Investment/brokerage accounts show individual holdings with ticker, name, quantity, price, value, and gain/loss. Snapshots recorded on each Plaid sync, one per day (upserted).
 - `/login` — Magic link auth (no sidebar)
 
 ## Categories

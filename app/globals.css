@@ -594,6 +594,16 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--color-neutral-300); border-radius: 3px; }
 
 /* ── Responsive: Mobile (<768px) ── */
+/* ── Sheet animations ── */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (max-width: 767px) {
   /* Type scale overrides */
   :root {

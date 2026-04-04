@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { plaidClient } from '@/lib/plaid'
+import { syncInvestmentHoldings } from '@/lib/plaid-holdings'
+import { CountryCode } from 'plaid'
 
 // Map Plaid's personal_finance_category.primary to our custom categories
 const PLAID_TO_CATEGORY: Record<string, string> = {
@@ -38,7 +40,7 @@ export async function POST() {
 
     const { data: plaidItems } = await supabase
       .from('plaid_items')
-      .select('id, access_token')
+      .select('id, access_token, institution_id, institution_logo')
       .eq('user_id', user.id)
 
     if (!plaidItems || plaidItems.length === 0) {
@@ -71,10 +73,33 @@ export async function POST() {
           .update({
             current_balance: account.balances.current,
             available_balance: account.balances.available,
+            credit_limit: account.balances.limit ?? null,
             updated_at: new Date().toISOString(),
           })
           .eq('plaid_account_id', account.account_id)
           .eq('user_id', user.id)
+      }
+
+      // Backfill institution logo if missing
+      if (!item.institution_logo) {
+        try {
+          const itemResponse = await plaidClient.itemGet({ access_token: item.access_token })
+          const instId = itemResponse.data.item.institution_id
+          if (instId) {
+            const instResponse = await plaidClient.institutionsGetById({
+              institution_id: instId,
+              country_codes: [CountryCode.Us],
+              options: { include_optional_metadata: true },
+            })
+            const logo = instResponse.data.institution.logo ?? null
+            await supabase
+              .from('plaid_items')
+              .update({ institution_id: instId, institution_logo: logo })
+              .eq('id', item.id)
+          }
+        } catch {
+          // Logo backfill failed — continue without it
+        }
       }
 
       // Fetch up to 2 years of transaction history, paginated
@@ -141,6 +166,10 @@ export async function POST() {
       }
 
       totalSynced += allTransactions.length
+
+      // Sync investment holdings if applicable
+      const accountIds = dbAccounts?.map((a) => a.id) || []
+      await syncInvestmentHoldings(supabase, item.access_token, user.id, accountMap, accountIds)
     }
 
     // Record net worth snapshot for today

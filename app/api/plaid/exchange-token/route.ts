@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { plaidClient } from '@/lib/plaid'
+import { syncInvestmentHoldings } from '@/lib/plaid-holdings'
+import { CountryCode } from 'plaid'
 
 export async function POST(request: Request) {
   try {
@@ -11,10 +13,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { public_token, institution_name } = await request.json()
+    const { public_token, institution_name, institution_id } = await request.json()
 
     if (!public_token || !institution_name?.trim()) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+    }
+
+    // Fetch institution logo from Plaid
+    let institutionLogo: string | null = null
+    if (institution_id) {
+      try {
+        const instResponse = await plaidClient.institutionsGetById({
+          institution_id,
+          country_codes: [CountryCode.Us],
+          options: { include_optional_metadata: true },
+        })
+        institutionLogo = instResponse.data.institution.logo ?? null
+      } catch {
+        // Logo fetch failed — continue without it
+      }
     }
 
     // Exchange public token for access token
@@ -31,6 +48,8 @@ export async function POST(request: Request) {
         access_token,
         item_id,
         institution_name,
+        institution_id: institution_id || null,
+        institution_logo: institutionLogo,
       })
       .select()
       .single()
@@ -53,6 +72,7 @@ export async function POST(request: Request) {
         subtype: account.subtype,
         current_balance: account.balances.current,
         available_balance: account.balances.available,
+        credit_limit: account.balances.limit ?? null,
         currency: account.balances.iso_currency_code || 'USD',
       })
     }
@@ -93,6 +113,10 @@ export async function POST(request: Request) {
         { onConflict: 'plaid_transaction_id' }
       )
     }
+
+    // Sync investment holdings if applicable
+    const accountIds = dbAccounts?.map((a) => a.id) || []
+    await syncInvestmentHoldings(supabase, access_token, user.id, accountMap, accountIds)
 
     return NextResponse.json({ success: true })
   } catch {
