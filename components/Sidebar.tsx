@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const navItems = [
-  { href: '/', label: 'Home' },
+  { href: '/', label: 'Dashboard' },
   { href: '/transactions', label: 'Transactions' },
   { href: '/net-worth', label: 'Net Worth' },
   { href: '/retirement', label: 'Retirement' },
@@ -30,9 +30,8 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
         &times;
       </button>
 
-      <div className="flex items-center gap-3 pb-4 mb-6 border-b border-sg-700">
-        <Image src="/logo.png" alt="Don't Go Broke" width={32} height={32} />
-        <span className="font-display text-[21px] text-sg-400">Don&apos;t Go Broke</span>
+      <div className="flex justify-center pb-4 mb-6 border-b border-sg-700">
+        <Image src="/logo.png" alt="Don't Go Broke" width={56} height={56} className="rounded-full" />
       </div>
 
       <div className="text-[15px] font-medium tracking-[0.1em] uppercase text-sg-200 mb-2">

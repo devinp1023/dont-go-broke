@@ -54,7 +54,11 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
 
   return (
     <div className="px-6 lg:px-10 py-8">
-      <h1 className="text-hero font-display text-neutral-900 mb-6">Hello, Devin!</h1>
+      <h1 className="text-hero font-display text-neutral-900 mb-6">{(() => {
+        const hour = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })).getHours()
+        const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening'
+        return `${greeting}, Devin!`
+      })()}</h1>
 
       {/* AI Insight card */}
       {insight && (
@@ -71,7 +75,7 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
               Claude&apos;s take
             </span>
           </div>
-          <p className="text-[19px] leading-[1.55] text-neutral-700 italic font-display">{insight}</p>
+          <p className="text-[17px] leading-[1.6] text-neutral-700 italic font-body font-medium">{insight}</p>
         </div>
       )}
 
