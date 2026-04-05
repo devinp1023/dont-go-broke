@@ -231,70 +231,146 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
 const HARDCODED_CARDS = [
   {
     name: 'American Express',
+    holder: 'Devin Patel',
     product: 'Gold Card',
+    number: '1111 2222 3333 4001',
     last4: '4001',
+    expiry: '12/26',
     brand: 'amex' as const,
-    gradient: 'linear-gradient(135deg, #C5A44E, #8A7230)',
+    gradient: 'radial-gradient(ellipse at 30% 20%, #e0c060 0%, #C5A44E 35%, #8A7230 80%, #6b5520 100%)',
   },
   {
     name: 'Capital One',
+    holder: 'Devin Patel',
     product: 'Venture X',
+    number: '1111 2222 3333 3873',
     last4: '3873',
-    brand: 'visa' as const,
-    gradient: 'linear-gradient(135deg, #1a1a2e, #2d2d44)',
+    expiry: '09/27',
+    brand: 'capitalone' as const,
+    gradient: 'radial-gradient(ellipse at 30% 20%, #2a3a6e 0%, #1c2a52 35%, #0f1b3d 80%, #0a1228 100%)',
   },
 ]
 
+function CardVisual({ card, className, style, onClick }: {
+  card: typeof HARDCODED_CARDS[number]
+  className?: string
+  style?: React.CSSProperties
+  onClick?: () => void
+}) {
+  return (
+    <div
+      className={`rounded-xl p-5 flex flex-col justify-between aspect-[1.6/1] w-full max-w-[320px] select-none ${className ?? ''}`}
+      style={{ background: card.gradient, boxShadow: '0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15)', ...style }}
+      onClick={onClick}
+    >
+      <div className="flex items-start justify-between">
+        <span className="text-white/90 text-[14px] font-semibold">{card.holder}</span>
+        {card.brand === 'amex' ? (
+          <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="4" fill="white" fillOpacity="0.15" />
+            <text x="16" y="20" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" fontFamily="sans-serif">AMEX</text>
+          </svg>
+        ) : card.brand === 'capitalone' ? (
+          <span className="text-[10px] font-bold tracking-wider uppercase italic" style={{ color: '#ED1C24', textShadow: '0 0 1px rgba(255,255,255,0.6)' }}>Capital One</span>
+        ) : (
+          <svg className="w-10 h-7" viewBox="0 0 40 28" fill="none">
+            <circle cx="12" cy="14" r="8" fill="#EB001B" opacity="0.9" />
+            <circle cx="24" cy="14" r="8" fill="#F79E1B" opacity="0.9" />
+            <path d="M18 8.268a8 8 0 0 1 0 11.464 8 8 0 0 1 0-11.464z" fill="#FF5F00" opacity="0.9" />
+          </svg>
+        )}
+      </div>
+      <div>
+        <div className="text-white/70 text-[13px] tracking-[0.15em] font-mono mb-1">
+          •••• •••• •••• {card.last4}
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-white/50 text-[11px]">{card.product}</span>
+          <span className="text-white/60 text-[12px] font-mono">{card.expiry}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function MyCardsWidget() {
-  const [activeCard, setActiveCard] = useState(0)
-  const card = HARDCODED_CARDS[activeCard]
+  const [frontIndex, setFrontIndex] = useState(1)
+  const [sheetCard, setSheetCard] = useState<typeof HARDCODED_CARDS[number] | null>(null)
+
+  const handleCardClick = (index: number) => {
+    if (index === frontIndex) {
+      setSheetCard(HARDCODED_CARDS[index])
+    } else {
+      setFrontIndex(index)
+    }
+  }
 
   return (
     <div className="card flex flex-col">
       <div className="text-heading font-display text-neutral-900 mb-4">My Cards</div>
 
-      {/* Card visual */}
-      <div
-        className="rounded-xl p-5 flex flex-col justify-between aspect-[1.6/1] w-full max-w-[320px] mx-auto cursor-pointer select-none"
-        style={{ background: card.gradient }}
-        onClick={() => setActiveCard((activeCard + 1) % HARDCODED_CARDS.length)}
-      >
-        <div className="flex items-start justify-between">
-          <span className="text-white/90 text-[14px] font-semibold">{card.name}</span>
-          {/* Brand logo */}
-          {card.brand === 'amex' ? (
-            <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="4" fill="white" fillOpacity="0.15" />
-              <text x="16" y="20" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" fontFamily="sans-serif">AMEX</text>
-            </svg>
-          ) : (
-            <svg className="w-10 h-7" viewBox="0 0 40 28" fill="none">
-              <rect x="0" y="6" width="16" height="16" rx="8" fill="#1A1F71" fillOpacity="0.7" />
-              <rect x="12" y="6" width="16" height="16" rx="8" fill="#F7B600" fillOpacity="0.8" />
-            </svg>
-          )}
-        </div>
-        <div>
-          <div className="text-white/50 text-[13px] tracking-[0.2em] font-mono mb-2">
-            •••• •••• •••• {card.last4}
-          </div>
-          <div className="text-white/80 text-[13px] font-medium">{card.product}</div>
-        </div>
+      {/* Stacked cards */}
+      <div className="relative w-full max-w-[320px] mx-auto" style={{ aspectRatio: '1.6/1', marginBottom: '40px', transform: 'translate(25px, 12px)' }}>
+        {HARDCODED_CARDS.map((card, i) => {
+          const isFront = i === frontIndex
+          return (
+            <div
+              key={i}
+              className="absolute inset-0 cursor-pointer"
+              style={{
+                transform: isFront ? 'translateX(0)' : 'scale(0.95) translateX(-50px)',
+                filter: isFront ? 'brightness(1)' : 'brightness(0.85)',
+                zIndex: isFront ? 2 : 1,
+                transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+              onClick={() => handleCardClick(i)}
+            >
+              <CardVisual card={card} />
+            </div>
+          )
+        })}
       </div>
 
-      {/* Card dots indicator */}
-      <div className="flex items-center justify-center gap-2 mt-4">
-        {HARDCODED_CARDS.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveCard(i)}
-            className="w-2 h-2 rounded-full transition-colors cursor-pointer"
+      {/* Card detail sheet */}
+      {sheetCard && (
+        <>
+          <div
+            onClick={() => setSheetCard(null)}
             style={{
-              background: i === activeCard ? 'var(--color-sg-500)' : 'var(--color-neutral-200)',
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              zIndex: 200,
+              animation: 'fadeIn 0.2s ease',
             }}
           />
-        ))}
-      </div>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '100%',
+              maxWidth: 480,
+              zIndex: 201,
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              animation: 'slideUp 0.3s ease',
+              boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 4 }}>
+              <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: 'var(--color-neutral-200)' }} />
+            </div>
+            <div style={{ padding: '24px 24px 40px', textAlign: 'center' }}>
+              <div className="text-heading font-display text-neutral-900 mb-2">{sheetCard.name} {sheetCard.product}</div>
+              <div className="text-label text-neutral-400 mb-6">•••• {sheetCard.last4}</div>
+              <div className="text-body text-neutral-500">Coming soon</div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

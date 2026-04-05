@@ -85,10 +85,42 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('amount, date, category, name')
-    .order('date', { ascending: false })
+  // Fire all independent queries in parallel
+  const [
+    { data: transactions },
+    snapshotsResult,
+    holdingsResult,
+    retAccountsResult,
+  ] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('amount, date, category, name')
+      .order('date', { ascending: false }),
+    user
+      ? supabase
+          .from('net_worth_snapshots')
+          .select('net_worth, date')
+          .eq('user_id', user.id)
+          .order('date', { ascending: false })
+          .limit(60)
+      : Promise.resolve({ data: null }),
+    user
+      ? supabase
+          .from('holdings')
+          .select('institution_value, cost_basis, quantity, securities(name, ticker_symbol, type, is_cash_equivalent)')
+          .eq('user_id', user.id)
+      : Promise.resolve({ data: null }),
+    user
+      ? supabase
+          .from('accounts')
+          .select('current_balance, subtype')
+          .eq('user_id', user.id)
+      : Promise.resolve({ data: null }),
+  ])
+
+  const snapshots = snapshotsResult.data
+  const holdings = holdingsResult.data
+  const retAccounts = retAccountsResult.data
 
   let income = 0
   let expenses = 0
@@ -127,9 +159,8 @@ export default async function Home() {
     const latestMonth = latestDate.getMonth()
     const latestYear = latestDate.getFullYear()
 
-    // Build week buckets for the latest month
     const monthStart = new Date(latestYear, latestMonth, 1)
-    const monthEnd = new Date(latestYear, latestMonth + 1, 0) // last day of month
+    const monthEnd = new Date(latestYear, latestMonth + 1, 0)
     const weekBuckets: { start: Date; end: Date; label: string; total: number }[] = []
 
     let cursor = new Date(monthStart)
@@ -147,11 +178,10 @@ export default async function Home() {
       weekNum++
     }
 
-    // Sum expenses into week buckets
     for (const txn of transactions) {
       const txnDate = new Date(txn.date + 'T00:00:00')
       if (txnDate.getMonth() !== latestMonth || txnDate.getFullYear() !== latestYear) continue
-      if (txn.amount <= 0) continue // skip income
+      if (txn.amount <= 0) continue
       for (const bucket of weekBuckets) {
         if (txnDate >= bucket.start && txnDate <= bucket.end) {
           bucket.total += txn.amount
@@ -185,20 +215,13 @@ export default async function Home() {
   let retirementProgressPct: number = 0
 
   if (user) {
+    // Insight generation depends on computed income/expenses, so it runs after transaction processing
     insight = await getOrGenerateInsight(supabase, user.id, income, expenses, categoryBreakdown)
 
-    // Fetch recent net worth snapshots for sparkline
-    const { data: snapshots } = await supabase
-      .from('net_worth_snapshots')
-      .select('net_worth, date')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
-      .limit(60)
-
+    // Process net worth snapshots
     if (snapshots && snapshots.length >= 1) {
       currentNetWorth = Number(snapshots[0].net_worth)
 
-      // Find snapshot closest to 30 days ago for month-over-month comparison
       const now = new Date(snapshots[0].date + 'T00:00:00')
       const thirtyDaysAgo = new Date(now)
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -219,18 +242,11 @@ export default async function Home() {
         netWorthChange = currentNetWorth - netWorthPrevious
       }
 
-      // Sparkline data: oldest to newest (reverse the desc-ordered results), cap at 12
       netWorthSparkline = snapshots.slice(0, 12).map((s) => Number(s.net_worth)).reverse()
     }
 
-    // Fetch holdings to find best performer (stocks/ETFs only, skip derivatives and cash)
-    const { data: holdings } = await supabase
-      .from('holdings')
-      .select('institution_value, cost_basis, quantity, securities(name, ticker_symbol, type, is_cash_equivalent)')
-      .eq('user_id', user.id)
-
+    // Process holdings for best/worst performers
     if (holdings && holdings.length > 0) {
-      // Security types to skip (derivatives, cash, etc.)
       const SKIP_TYPES = new Set(['derivative', 'option', 'cash', 'fixed income', 'mutual fund'])
       let bestGainPct = -Infinity
       let worstGainPct = Infinity
@@ -261,15 +277,11 @@ export default async function Home() {
       }
     }
 
-    // Retirement age projection (lightweight for dashboard)
+    // Retirement age projection
     const RETIREMENT_SUBTYPES = new Set([
       '401a', '401k', '403b', '457b', 'ira', 'roth', 'roth 401k',
       'sep ira', 'simple ira', 'keogh', 'pension', 'retirement', 'thrift savings plan',
     ])
-    const { data: retAccounts } = await supabase
-      .from('accounts')
-      .select('current_balance, subtype')
-      .eq('user_id', user.id)
 
     const retBalance = (retAccounts || [])
       .filter((a) => RETIREMENT_SUBTYPES.has((a.subtype ?? '').toLowerCase()))
