@@ -22,7 +22,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Don't Go Broke",
+  title: "Birch",
   description: "Personal finance tracker",
 };
 

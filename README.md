@@ -1,4 +1,4 @@
-# Don't Go Broke
+# Birch
 
 Personal finance app that syncs bank transactions via Plaid and displays them in a clean UI. Built as a single-user PWA.
 

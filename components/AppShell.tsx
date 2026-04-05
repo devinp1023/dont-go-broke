@@ -34,7 +34,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
-        <span className="font-display text-[20px] text-sg-400">Don&apos;t Go Broke</span>
+        <span className="font-display text-[20px] text-sg-400">Birch</span>
       </div>
 
       {/* Sidebar overlay (mobile only) */}

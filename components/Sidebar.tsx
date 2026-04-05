@@ -31,7 +31,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
       </button>
 
       <div className="flex justify-center pb-4 mb-6 border-b border-sg-700">
-        <Image src="/logo.png" alt="Don't Go Broke" width={56} height={56} className="rounded-full" />
+        <Image src="/logo.png" alt="Birch" width={56} height={56} className="rounded-full" />
       </div>
 
       <div className="text-[15px] font-medium tracking-[0.1em] uppercase text-sg-200 mb-2">

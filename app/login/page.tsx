@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50">
       <div className="card-elevated w-full max-w-sm p-8">
-        <h1 className="text-display font-display text-neutral-900 text-center mb-6">Don&apos;t Go Broke</h1>
+        <h1 className="text-display font-display text-neutral-900 text-center mb-6">Birch</h1>
 
         {sent ? (
           <p className="text-body text-neutral-500 text-center">

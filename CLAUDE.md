@@ -1,4 +1,4 @@
-# Don't Go Broke
+# Birch
 
 Personal finance PWA (single-user, public repo). Replicates core Copilot Money functionality.
 
