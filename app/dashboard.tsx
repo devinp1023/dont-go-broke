@@ -49,8 +49,7 @@ type TopHolding = {
 
 type WeeklyExpense = { week: string; amount: number }
 type RecentTransaction = { name: string; date: string; amount: number; category: string }
-
-export default function Dashboard({ income, expenses, monthLabel, categoryBreakdown, insight, currentNetWorth, netWorthChange, netWorthPrevious, netWorthSparkline, topHolding, worstHolding, weeklyExpenses, recentTransactions }: { income: number; expenses: number; monthLabel: string; categoryBreakdown: CategoryData[]; insight?: string; currentNetWorth?: number | null; netWorthChange?: number | null; netWorthPrevious?: number | null; netWorthSparkline?: number[]; topHolding?: TopHolding | null; worstHolding?: TopHolding | null; weeklyExpenses?: WeeklyExpense[]; recentTransactions?: RecentTransaction[] }) {
+export default function Dashboard({ income, expenses, monthLabel, categoryBreakdown, insight, currentNetWorth, netWorthChange, netWorthPrevious, netWorthSparkline, topHolding, worstHolding, weeklyExpenses, recentTransactions, retirementAge, retirementYearsUntil, retirementProgressPct }: { income: number; expenses: number; monthLabel: string; categoryBreakdown: CategoryData[]; insight?: string; currentNetWorth?: number | null; netWorthChange?: number | null; netWorthPrevious?: number | null; netWorthSparkline?: number[]; topHolding?: TopHolding | null; worstHolding?: TopHolding | null; weeklyExpenses?: WeeklyExpense[]; recentTransactions?: RecentTransaction[]; retirementAge?: number | null; retirementYearsUntil?: number | null; retirementProgressPct?: number }) {
   const net = income - expenses
 
   return (
@@ -161,8 +160,52 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
         <MonthlyTrendChart data={weeklyExpenses ?? []} monthLabel={monthLabel} />
       </div>
 
-      {/* Recent Transactions + Spending by Category row */}
-      <div className="grid grid-cols-1 md:grid-cols-[6fr_4fr] gap-4 md:gap-6 mb-8">
+      {/* Retirement Age + Recent Transactions + Spending by Category row */}
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_5fr_4fr] gap-4 md:gap-6 mb-8">
+        {/* Retirement Age card */}
+        <a href="/retirement" className="card flex flex-col no-underline hover:shadow-elevated transition-shadow duration-200">
+          <div className="text-heading font-display text-neutral-900 mb-4">Projected Retirement</div>
+          <div className="flex-1 flex flex-col items-center justify-center text-center">
+            {/* Progress ring */}
+            <div className="relative w-[150px] h-[150px]">
+              <svg className="w-full h-full" viewBox="0 0 150 150" style={{ transform: 'rotate(90deg)' }}>
+                <defs>
+                  <linearGradient id="retirementGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="var(--color-sg-600)" />
+                    <stop offset="100%" stopColor="var(--color-sg-400)" />
+                  </linearGradient>
+                  <filter id="progressGlow">
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="var(--color-sg-400)" floodOpacity="0.5" />
+                  </filter>
+                </defs>
+                {/* Background track */}
+                <circle cx="75" cy="75" r="62" fill="none" stroke="var(--color-neutral-100)" strokeWidth="5" opacity="0.6" />
+                {/* Progress arc */}
+                <circle
+                  cx="75" cy="75" r="62" fill="none"
+                  stroke="url(#retirementGradient)" strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeDasharray={`${Math.max((retirementProgressPct ?? 0) / 100 * 2 * Math.PI * 62, 1)} ${2 * Math.PI * 62}`}
+                  filter="url(#progressGlow)"
+                />
+              </svg>
+              {/* Center text */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-[48px] font-display text-sg-600 leading-none tabular-nums">
+                  {retirementAge ?? '—'}
+                </div>
+              </div>
+            </div>
+            <div className="text-[14px] font-medium text-neutral-600 mt-3">
+              {retirementYearsUntil != null ? `${retirementYearsUntil} years from now` : ''}
+            </div>
+            <div className="text-[11px] text-neutral-400 mt-0.5">
+              {(retirementProgressPct ?? 0).toFixed(1)}% of $2M goal
+            </div>
+          </div>
+          <span className="text-[13px] font-semibold text-sg-500 hover:text-sg-600 transition-colors mt-3">View details</span>
+        </a>
+
         <RecentTransactionsWidget transactions={recentTransactions ?? []} />
         <SpendingDonutChart data={categoryBreakdown} />
       </div>
@@ -173,18 +216,12 @@ export default function Dashboard({ income, expenses, monthLabel, categoryBreakd
 
         {/* Top performing holding */}
         {topHolding && (
-          <HoldingCard
-            holding={topHolding}
-            label={monthLabel ? `${monthLabel} TOP PERFORMER` : 'TOP PERFORMER'}
-          />
+          <HoldingCard holding={topHolding} label="Top Performer" />
         )}
 
         {/* Worst performing holding */}
         {worstHolding && (
-          <HoldingCard
-            holding={worstHolding}
-            label={monthLabel ? `${monthLabel} WORST PERFORMER` : 'WORST PERFORMER'}
-          />
+          <HoldingCard holding={worstHolding} label="Worst Performer" />
         )}
       </div>
     </div>
@@ -380,7 +417,7 @@ function RecentTransactionsWidget({ transactions }: { transactions: RecentTransa
     <div className="card flex flex-col">
       <div className="flex items-center justify-between mb-5">
         <div className="text-heading font-display text-neutral-900">Recent Transactions</div>
-        <a href="/transactions" className="text-[13px] font-medium text-sg-500 hover:text-sg-600 transition-colors">
+        <a href="/transactions" className="text-[15px] font-semibold text-sg-500 hover:text-sg-600 transition-colors">
           View all
         </a>
       </div>
@@ -391,10 +428,10 @@ function RecentTransactionsWidget({ transactions }: { transactions: RecentTransa
           <div className="empty-desc">Transactions will appear here after syncing.</div>
         </div>
       ) : (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           {grouped.map((group) => (
             <div key={group.label}>
-              <div className="text-[12px] font-medium text-neutral-400 uppercase tracking-wide mb-2 mt-1">
+              <div className="text-[12px] font-medium text-neutral-400 uppercase tracking-wide mb-2 mt-1 px-1">
                 {group.label}
               </div>
               {group.items.map((txn, i) => {
@@ -407,12 +444,12 @@ function RecentTransactionsWidget({ transactions }: { transactions: RecentTransa
                 return (
                   <div
                     key={`${txn.date}-${i}`}
-                    className="flex items-center gap-3 py-3 border-b border-neutral-50 last:border-b-0"
+                    className="flex items-center gap-3 py-3 px-4 bg-neutral-50/70 rounded-xl mb-1.5 last:mb-0 border border-neutral-100/40"
                   >
                     {/* Initial avatar */}
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-[15px] font-bold shrink-0"
-                      style={{ background: bgColor }}
+                      style={{ background: bgColor, boxShadow: `0 2px 6px ${bgColor}44` }}
                     >
                       {initial}
                     </div>
@@ -543,8 +580,8 @@ function TrendIcon({ up, light, invert }: { up: boolean; light?: boolean; invert
 
 function HoldingCard({ holding, label }: { holding: TopHolding; label: string }) {
   return (
-    <div className="card flex flex-col justify-center items-center text-center">
-      <div className="stat-label mb-4">{label}</div>
+    <div className="card flex flex-col items-center text-center">
+      <div className="text-heading font-display text-neutral-900 mb-4 self-start">{label}</div>
       {holding.ticker && (
         <span
           className="font-mono text-[13px] font-semibold tracking-wide px-2.5 py-1 rounded-md mb-2"

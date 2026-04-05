@@ -7,6 +7,7 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/transactions', label: 'Transactions' },
   { href: '/net-worth', label: 'Net Worth' },
+  { href: '/retirement', label: 'Retirement' },
   { href: '/accounts', label: 'Account Management' },
 ]
 

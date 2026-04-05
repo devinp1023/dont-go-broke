@@ -180,6 +180,9 @@ export default async function Home() {
   let netWorthSparkline: number[] = []
   let topHolding: { name: string; ticker: string | null; gainPct: number; gainAmount: number } | null = null
   let worstHolding: { name: string; ticker: string | null; gainPct: number; gainAmount: number } | null = null
+  let retirementAge: number | null = null
+  let retirementYearsUntil: number | null = null
+  let retirementProgressPct: number = 0
 
   if (user) {
     insight = await getOrGenerateInsight(supabase, user.id, income, expenses, categoryBreakdown)
@@ -257,6 +260,32 @@ export default async function Home() {
         }
       }
     }
+
+    // Retirement age projection (lightweight for dashboard)
+    const RETIREMENT_SUBTYPES = new Set([
+      '401a', '401k', '403b', '457b', 'ira', 'roth', 'roth 401k',
+      'sep ira', 'simple ira', 'keogh', 'pension', 'retirement', 'thrift savings plan',
+    ])
+    const { data: retAccounts } = await supabase
+      .from('accounts')
+      .select('current_balance, subtype')
+      .eq('user_id', user.id)
+
+    const retBalance = (retAccounts || [])
+      .filter((a) => RETIREMENT_SUBTYPES.has((a.subtype ?? '').toLowerCase()))
+      .reduce((sum, a) => sum + (a.current_balance ?? 0), 0)
+
+    const monthlyRate = 0.07 / 12
+    const monthlyContrib = 500
+    let months = 0
+    let bal = retBalance
+    while (bal < 2_000_000 && months < 12 * 80) {
+      bal = bal * (1 + monthlyRate) + monthlyContrib
+      months++
+    }
+    retirementAge = Math.round(29 + months / 12)
+    retirementYearsUntil = Math.round(months / 12)
+    retirementProgressPct = Math.min(100, (retBalance / 2_000_000) * 100)
   }
 
   return (
@@ -274,6 +303,9 @@ export default async function Home() {
       worstHolding={worstHolding}
       weeklyExpenses={weeklyExpenses}
       recentTransactions={recentTransactions}
+      retirementAge={retirementAge}
+      retirementYearsUntil={retirementYearsUntil}
+      retirementProgressPct={retirementProgressPct}
     />
   )
 }
