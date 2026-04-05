@@ -87,7 +87,7 @@ export default async function Home() {
 
   const { data: transactions } = await supabase
     .from('transactions')
-    .select('amount, date, category')
+    .select('amount, date, category, name')
     .order('date', { ascending: false })
 
   let income = 0
@@ -119,6 +119,59 @@ export default async function Home() {
   const categoryBreakdown = Object.entries(categoryMap)
     .map(([category, amount]) => ({ category, amount }))
     .sort((a, b) => b.amount - a.amount)
+
+  // Compute weekly expense totals for Monthly Trend chart
+  const weeklyExpenses: { week: string; amount: number }[] = []
+  if (transactions && transactions.length > 0) {
+    const latestDate = new Date(transactions[0].date + 'T00:00:00')
+    const latestMonth = latestDate.getMonth()
+    const latestYear = latestDate.getFullYear()
+
+    // Build week buckets for the latest month
+    const monthStart = new Date(latestYear, latestMonth, 1)
+    const monthEnd = new Date(latestYear, latestMonth + 1, 0) // last day of month
+    const weekBuckets: { start: Date; end: Date; label: string; total: number }[] = []
+
+    let cursor = new Date(monthStart)
+    let weekNum = 1
+    while (cursor <= monthEnd) {
+      const weekStart = new Date(cursor)
+      const weekEnd = new Date(cursor)
+      weekEnd.setDate(weekEnd.getDate() + 6)
+      if (weekEnd > monthEnd) weekEnd.setTime(monthEnd.getTime())
+
+      const startLabel = `${weekStart.toLocaleDateString('en-US', { month: 'short' })} ${weekStart.getDate()}`
+      weekBuckets.push({ start: weekStart, end: weekEnd, label: `Week ${weekNum} (${startLabel})`, total: 0 })
+
+      cursor.setDate(cursor.getDate() + 7)
+      weekNum++
+    }
+
+    // Sum expenses into week buckets
+    for (const txn of transactions) {
+      const txnDate = new Date(txn.date + 'T00:00:00')
+      if (txnDate.getMonth() !== latestMonth || txnDate.getFullYear() !== latestYear) continue
+      if (txn.amount <= 0) continue // skip income
+      for (const bucket of weekBuckets) {
+        if (txnDate >= bucket.start && txnDate <= bucket.end) {
+          bucket.total += txn.amount
+          break
+        }
+      }
+    }
+
+    for (const bucket of weekBuckets) {
+      weeklyExpenses.push({ week: bucket.label, amount: Math.round(bucket.total * 100) / 100 })
+    }
+  }
+
+  // Recent transactions (top 3)
+  const recentTransactions = (transactions ?? []).slice(0, 3).map((t) => ({
+    name: t.name || 'Unknown',
+    date: t.date,
+    amount: t.amount,
+    category: t.category || 'Other',
+  }))
 
   let insight = ''
   let netWorthChange: number | null = null
@@ -219,6 +272,8 @@ export default async function Home() {
       netWorthSparkline={netWorthSparkline}
       topHolding={topHolding}
       worstHolding={worstHolding}
+      weeklyExpenses={weeklyExpenses}
+      recentTransactions={recentTransactions}
     />
   )
 }
