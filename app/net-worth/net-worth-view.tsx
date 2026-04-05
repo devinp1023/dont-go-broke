@@ -130,6 +130,19 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [selectedAccount, setSelectedAccount] = useState<AccountSummary | null>(null)
 
+  const openAccountSheet = (acct: AccountSummary) => {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    document.body.style.paddingRight = `${scrollbarWidth}px`
+    setSelectedAccount(acct)
+  }
+
+  const closeAccountSheet = () => {
+    document.body.style.overflow = ''
+    document.body.style.paddingRight = ''
+    setSelectedAccount(null)
+  }
+
   function toggleGroup(type: string) {
     setCollapsed((prev) => {
       const next = new Set(prev)
@@ -288,7 +301,7 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
                     <div
                       key={acct.id}
                       className="flex items-center gap-3 py-3 border-b border-neutral-100 last:border-b-0"
-                      onClick={isInvestment ? () => setSelectedAccount(acct) : undefined}
+                      onClick={isInvestment ? () => openAccountSheet(acct) : undefined}
                       style={isInvestment ? { cursor: 'pointer' } : undefined}
                     >
                       {acct.institution && (
@@ -340,7 +353,7 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
           <>
             {/* Backdrop */}
             <div
-              onClick={() => setSelectedAccount(null)}
+              onClick={closeAccountSheet}
               style={{
                 position: 'fixed',
                 inset: 0,
@@ -354,8 +367,9 @@ export default function NetWorthView({ netWorth, totalAssets, totalLiabilities, 
               style={{
                 position: 'fixed',
                 bottom: 0,
-                left: '50%',
-                transform: 'translateX(-50%)',
+                left: 0,
+                right: 0,
+                margin: '0 auto',
                 width: '100%',
                 maxWidth: 480,
                 zIndex: 201,

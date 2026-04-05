@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const navItems = [
@@ -29,8 +30,9 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
         &times;
       </button>
 
-      <div className="font-display text-[23px] text-sg-400 pb-4 mb-6 border-b border-sg-700">
-        Don&apos;t Go Broke
+      <div className="flex items-center gap-3 pb-4 mb-6 border-b border-sg-700">
+        <Image src="/logo.png" alt="Don't Go Broke" width={32} height={32} />
+        <span className="font-display text-[21px] text-sg-400">Don&apos;t Go Broke</span>
       </div>
 
       <div className="text-[15px] font-medium tracking-[0.1em] uppercase text-sg-200 mb-2">

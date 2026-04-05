@@ -297,9 +297,22 @@ function MyCardsWidget() {
   const [frontIndex, setFrontIndex] = useState(1)
   const [sheetCard, setSheetCard] = useState<typeof HARDCODED_CARDS[number] | null>(null)
 
+  const openSheet = (card: typeof HARDCODED_CARDS[number]) => {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    document.body.style.paddingRight = `${scrollbarWidth}px`
+    setSheetCard(card)
+  }
+
+  const closeSheet = () => {
+    document.body.style.overflow = ''
+    document.body.style.paddingRight = ''
+    setSheetCard(null)
+  }
+
   const handleCardClick = (index: number) => {
     if (index === frontIndex) {
-      setSheetCard(HARDCODED_CARDS[index])
+      openSheet(HARDCODED_CARDS[index])
     } else {
       setFrontIndex(index)
     }
@@ -335,7 +348,7 @@ function MyCardsWidget() {
       {sheetCard && (
         <>
           <div
-            onClick={() => setSheetCard(null)}
+            onClick={closeSheet}
             style={{
               position: 'fixed',
               inset: 0,
@@ -348,8 +361,9 @@ function MyCardsWidget() {
             style={{
               position: 'fixed',
               bottom: 0,
-              left: '50%',
-              transform: 'translateX(-50%)',
+              left: 0,
+              right: 0,
+              margin: '0 auto',
               width: '100%',
               maxWidth: 480,
               zIndex: 201,
